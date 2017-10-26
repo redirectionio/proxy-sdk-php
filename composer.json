@@ -1,0 +1,39 @@
+{
+    "name": "redirectionio/redirectionio",
+    "description": "redirection.io PHP Client",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Grégoire Pineau",
+            "email": "lyrixx@lyrixx.info"
+        },
+        {
+            "name": "Quentin Brunet"
+        },
+        {
+            "name": "redirection.io",
+            "email": "coucou@redirection.io"
+        }
+    ],
+    "require": {
+        "symfony/options-resolver": "^3.3"
+    },
+    "require-dev": {
+        "symfony/phpunit-bridge": "^3.3",
+        "symfony/process": "^3.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "RedirectionIO\\Client\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": [
+            "vendor/bin/simple-phpunit"
+        ]
+    }
+}

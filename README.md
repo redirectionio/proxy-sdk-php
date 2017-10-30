@@ -7,15 +7,21 @@ Quick demo (see below for detailed info):
 
 ```
 $client = new Client($connectionsOptions);
-$request = App::createServerRequest();
+$request = new ServerRequest(
+    $_SERVER['HTTP_HOST'],
+    $_SERVER['REQUEST_URI'],
+    $_SERVER['HTTP_USER_AGENT'],
+    $_SERVER['HTTP_REFERER']
+);
 $response = $client->findRedirect($request);
 
 if (null === $response) {
-    $response = App::handleRequest($request);
+    $response = ... // Handle your request
 }
 
 $client->log($request, $response);
-App::outputResponse($response);
+
+... // Then, output your content or redirect
 ```
 
 ## Requirements

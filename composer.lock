@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ccd01d2cede54bec0610c8f21f49b7a",
+    "content-hash": "e0b273b1eef46ac9983ad73362edae31",
     "packages": [
         {
             "name": "symfony/options-resolver",

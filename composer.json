@@ -1,5 +1,5 @@
 {
-    "name": "redirectionio/redirectionio",
+    "name": "redirectionio/sdk",
     "description": "redirection.io PHP Client",
     "type": "library",
     "license": "MIT",

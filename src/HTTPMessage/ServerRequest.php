@@ -3,12 +3,12 @@
 namespace RedirectionIO\Client\HTTPMessage;
 
 /**
- * Server-side HTTP Request
- * 
+ * Server-side HTTP Request.
+ *
  * Minimal working server request to interact with the agent
  */
-class ServerRequest {
-
+class ServerRequest
+{
     /**
      * @var string Host of the URI instance
      */

@@ -2,10 +2,11 @@
 
 namespace RedirectionIO\Client;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use RedirectionIO\Client\Exception\AgentNotFoundException;
 use RedirectionIO\Client\HTTPMessage\RedirectResponse;
 use RedirectionIO\Client\HTTPMessage\ServerRequest;
-use RedirectionIO\Client\Log\Logger;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class Client
@@ -33,7 +34,7 @@ class Client
     private $debug;
     private $logger;
 
-    public function __construct(array $connectionsOptions = [], $timeout = 1000000, $debug = false, Logger $logger = null)
+    public function __construct(array $connectionsOptions = [], $timeout = 1000000, $debug = false, LoggerInterface $logger = null)
     {
         foreach ($connectionsOptions as $connectionName => $connectionOptions) {
             $this->connectionsOptions[$connectionName] = $this->resolveConnectionOptions($connectionOptions);
@@ -41,7 +42,7 @@ class Client
 
         $this->timeout = $timeout;
         $this->debug = $debug;
-        $this->logger = $logger ?: new Logger();
+        $this->logger = $logger ?: new NullLogger();
     }
 
     /**
@@ -82,8 +83,8 @@ class Client
     /**
      * Log request/response couple.
      *
-     * @param ServerRequest $request
-     * @param RedirectResponse      $response
+     * @param ServerRequest    $request
+     * @param RedirectResponse $response
      *
      * @return bool
      */

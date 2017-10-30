@@ -3,12 +3,12 @@
 namespace RedirectionIO\Client\HTTPMessage;
 
 /**
- * Redirect HTTP Response
- * 
+ * Redirect HTTP Response.
+ *
  * Minimal working redirect response to interact with the agent
  */
-class RedirectResponse {
-
+class RedirectResponse
+{
     /**
      * @var int Status code of the response
      */
@@ -21,7 +21,7 @@ class RedirectResponse {
 
     /**
      * @param string $location
-     * @param int $statusCode
+     * @param int    $statusCode
      */
     public function __construct($location = '', $statusCode = 200)
     {

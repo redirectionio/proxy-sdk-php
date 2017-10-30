@@ -17,6 +17,7 @@
         }
     ],
     "require": {
+        "psr/log": "^1.0",
         "symfony/options-resolver": "^3.3"
     },
     "require-dev": {

@@ -46,7 +46,7 @@ Before starting, you need to instantiate a new Client.
 ```
 use RedirectionIO\Client\Client;
 
-$client = new Client(array $connectionsOptions = [], $timeout = 1000000, $debug = false, Logger $logger = null);
+$client = new Client(array $connectionsOptions = [], $timeout = 1000000, $debug = false, LoggerInterface $logger = null);
 ```
 
 Parameters:
@@ -64,7 +64,7 @@ $connectionsOptions = [
 
 - `$timeout` timeout in microsecond for connection/request
 - `$debug` enable or disable debug mode
-- `\RedirectionIO\Client\Log\Logger $logger` logger
+- `\Psr\Log\LoggerInterface $logger` logger
 
 ### Find if a redirection rule exists
 

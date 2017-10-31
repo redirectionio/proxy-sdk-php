@@ -68,7 +68,7 @@ class Client
 
         list($code, $link) = explode('|', $agentResponse);
 
-        return new RedirectResponse($link, $code);
+        return new RedirectResponse($link, (int) $code);
     }
 
     public function log(Request $request, Response $response)

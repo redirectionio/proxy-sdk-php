@@ -5,37 +5,35 @@ namespace RedirectionIO\Client;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use RedirectionIO\Client\Exception\AgentNotFoundException;
-use RedirectionIO\Client\HTTPMessage\RedirectResponse;
-use RedirectionIO\Client\HTTPMessage\ServerRequest;
+use RedirectionIO\Client\Exception\BadConfigurationException;
+use RedirectionIO\Client\Exception\ExceptionInterface;
+use RedirectionIO\Client\HttpMessage\RedirectResponse;
+use RedirectionIO\Client\HttpMessage\Request;
+use RedirectionIO\Client\HttpMessage\Response;
+use Symfony\Component\OptionsResolver\Exception\ExceptionInterface as OptionsResolverExceptionInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class Client
 {
-    /**
-     * @var array[] A list of connections options
-     */
     private $connectionsOptions;
-
-    /**
-     * @var resource|null current connection
-     */
     private $currentConnection;
-
-    /**
-     * @var string Current connection name
-     */
     private $currentConnectionName;
-
-    /**
-     * @var int Timeout in microseconds for connection / request
-     */
     private $timeout;
-
     private $debug;
     private $logger;
 
-    public function __construct(array $connectionsOptions = [], $timeout = 1000000, $debug = false, LoggerInterface $logger = null)
+    /**
+     * @param array           $connectionsOptions
+     * @param int             $timeout
+     * @param bool            $debug
+     * @param LoggerInterface $logger
+     */
+    public function __construct(array $connectionsOptions, $timeout = 1000000, $debug = false, LoggerInterface $logger = null)
     {
+        if (!$connectionsOptions) {
+            throw new BadConfigurationException('At least one connection is required.');
+        }
+
         foreach ($connectionsOptions as $connectionName => $connectionOptions) {
             $this->connectionsOptions[$connectionName] = $this->resolveConnectionOptions($connectionOptions);
         }
@@ -45,14 +43,7 @@ class Client
         $this->logger = $logger ?: new NullLogger();
     }
 
-    /**
-     * Find redirect response from a request.
-     *
-     * @param ServerRequest $request
-     *
-     * @return RedirectResponse|null
-     */
-    public function findRedirect(ServerRequest $request)
+    public function findRedirect(Request $request)
     {
         $requestContext = [
             'host' => $request->getHost(),
@@ -62,7 +53,7 @@ class Client
         ];
 
         try {
-            $redirectResponse = $this->request('GET', $requestContext);
+            $agentResponse = $this->request('GET', $requestContext);
         } catch (ExceptionInterface $exception) {
             if ($this->debug) {
                 throw $exception;
@@ -71,24 +62,16 @@ class Client
             return null;
         }
 
-        if (strlen($redirectResponse) === 0) {
+        if (strlen($agentResponse) === 0) {
             return null;
         }
 
-        list($code, $link) = explode('|', $redirectResponse);
+        list($code, $link) = explode('|', $agentResponse);
 
         return new RedirectResponse($link, $code);
     }
 
-    /**
-     * Log request/response couple.
-     *
-     * @param ServerRequest    $request
-     * @param RedirectResponse $response
-     *
-     * @return bool
-     */
-    public function log(ServerRequest $request, RedirectResponse $response)
+    public function log(Request $request, Response $response)
     {
         $responseContext = [
             'status_code' => $response->getStatusCode(),
@@ -114,7 +97,12 @@ class Client
         $optionsResolver = new OptionsResolver();
         $optionsResolver->setRequired(['host', 'port']);
 
-        $options = $optionsResolver->resolve($options);
+        try {
+            $options = $optionsResolver->resolve($options);
+        } catch (OptionsResolverExceptionInterface $e) {
+            throw new BadConfigurationException($e->getMessage(), 0, $e);
+        }
+
         $options['retries'] = 2;
 
         return $options;

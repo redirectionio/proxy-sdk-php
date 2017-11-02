@@ -21,7 +21,7 @@
         "symfony/options-resolver": "^3.3"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "^3.3",
+        "symfony/phpunit-bridge": "^3.4@beta",
         "symfony/process": "^3.3"
     },
     "autoload": {
@@ -36,5 +36,10 @@
         "test": [
             "vendor/bin/simple-phpunit"
         ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
     }
 }

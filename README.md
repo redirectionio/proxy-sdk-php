@@ -1,13 +1,14 @@
 # redirection.io PHP Client
 
-redirection.io is a tool to track HTTP errors and setup useful HTTP redirections.
-It listens your website's HTTP traffic and logs every HTTP error, so you can check that the project's redirection rules apply efficiently.
+redirection.io is a tool to track HTTP errors and setup useful HTTP
+redirections. It listens your website's HTTP traffic and logs every HTTP errors,
+so you can check that the project's redirection rules apply efficiently.
 
 Quick demo (see below for detailed info):
 
-```
-$client = new Client($connectionsOptions);
-$request = new ServerRequest(
+```php
+$client = new RedirectionIO\Client\Client($connectionsOptions);
+$request = new RedirectionIO\Client\HttpMessage\Request(
     $_SERVER['HTTP_HOST'],
     $_SERVER['REQUEST_URI'],
     $_SERVER['HTTP_USER_AGENT'],
@@ -15,90 +16,89 @@ $request = new ServerRequest(
 );
 $response = $client->findRedirect($request);
 
+// There are no redirection for this Request
 if (null === $response) {
-    $response = ... // Handle your request
+    $response = '...' // Handle your request with your application
 }
 
 $client->log($request, $response);
 
-... // Then, output your content or redirect
+// Finally, Returns your content or redirect
 ```
 
 ## Requirements
 
-- [composer](https://getcomposer.org/)
-- PHP 5.6+
+- [Composer](https://getcomposer.org/)
+- PHP 5.5+
 
 ## Installation
 
 To use redirection.io in your project, add it to your composer.json file:
 
-```
-$ composer require redirectionio/redirectionio
-```
+    $ composer require redirectionio/sdk
 
 ## Usage
 
-### Instantiate Client 
+### Instantiate Client
 
 Before starting, you need to instantiate a new Client.
 
-```
+```php
 use RedirectionIO\Client\Client;
 
-$client = new Client(array $connectionsOptions = [], $timeout = 1000000, $debug = false, LoggerInterface $logger = null);
+$client = new Client(array $connectionsOptions, $timeout = 1000000, $debug = false, LoggerInterface $logger = null);
 ```
 
 Parameters:
-- `array $connectionsOptions` array of connection(s) parameters to the Agent
 
-```
-$connectionsOptions = [
-    'connection1' => ['host' => 'host1', 'port' => 8001],
-    'connection2' => ['host' => 'host2', 'port' => 8002],
-    ...
-];
+- `array $connectionsOptions` array of connection(s) parameters to the Agent(s)
+    ```php
+    $connectionsOptions = [
+        'connection1' => ['host' => 'host1', 'port' => 8001],
+        'connection2' => ['host' => 'host2', 'port' => 8002],
+        ...
+    ];
 
-// Note: 'host' and 'port' options are both required
-```
-
-- `$timeout` timeout in microsecond for connection/request
-- `$debug` enable or disable debug mode
-- `\Psr\Log\LoggerInterface $logger` logger
+    // Note: 'host' and 'port' options are both required
+    ```
+- `$timeout` timeout in microsecond for connection/request;
+- `$debug` enable or disable debug mode. In debug mode an exception is thrown is something goes wrong, if not every errors is silenced;
+- `\Psr\Log\LoggerInterface $logger` A logger.
 
 ### Find if a redirection rule exists
 
-Check if request uri matches a redirect rule in the agent. If yes return a redirect response, else return null.
+Check if request URI matches a redirect rule in the agent. If yes return a
+`RedirectResponse`, else return `null`.
 
-```
+```php
 use RedirectionIO\Client\Client;
-use RedirectionIO\Client\HTTPMessage\ServerRequest;
+use RedirectionIO\Client\HttpMessage\Request;
 
-$client->findRedirect(ServerRequest $request);
+$client->findRedirect(Request $request);
 ```
 
 Parameter:
-- `\RedirectionIO\Client\HTTPMessage\ServerRequest $request`
+- `\RedirectionIO\Client\HttpMessage\Request $request`.
 
-Return values: 
-- `\RedirectionIO\Client\HTTPMessage\RedirectResponse $response` if agent has found a redirect rule for the current request uri
-- `null` if there isn't redirect rule set for the current uri in the agent
+Return values:
+- `\RedirectionIO\Client\HttpMessage\RedirectResponse $response` if agent has found a redirect rule for the current request uri;
+- `null` if there isn't redirect rule set for the current uri in the agent.
 
 ### Log a request/response couple
 
-Allow you to log a request/response couple for each interaction with the agent.
+Allow you to log a request/response couple for every request.
 
-```
+```php
 use RedirectionIO\Client\Client;
-use RedirectionIO\Client\HTTPMessage\RedirectResponse;
-use RedirectionIO\Client\HTTPMessage\ServerRequest;
+use RedirectionIO\Client\HttpMessage\Response;
+use RedirectionIO\Client\HttpMessage\Request;
 
-$client->log(ServerRequest $request, RedirectResponse $response);
+$client->log(Request $request, Response $response);
 ```
 
 Parameters:
-- `\RedirectionIO\Client\HTTPMessage\RedirectResponse $request`
-- `\RedirectionIO\Client\HTTPMessage\ServerRequest $response`
+- `\RedirectionIO\Client\HttpMessage\Response $request`
+- `\RedirectionIO\Client\HttpMessage\Request $response`
 
 
 Return value:
@@ -110,12 +110,8 @@ We take care of all new PRs. Any contribution is welcome :) Thanks.
 
 ### Install
 
-```
-$ composer install
-```
+    $ composer install
 
 ### Run tests
 
-```
-$ composer run test
-```
+    $ composer run test

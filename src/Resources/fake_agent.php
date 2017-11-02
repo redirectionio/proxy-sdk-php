@@ -13,8 +13,8 @@
  */
 set_time_limit(0);
 
-$ip = 'localhost';
-$port = 8000;
+$ip = isset($_SERVER['RIO_HOST']) ? $_SERVER['RIO_HOST'] : 'localhost';
+$port = isset($_SERVER['RIO_PORT']) ? $_SERVER['RIO_PORT'] : 3100;
 $timeout = 1000000; // seconds
 $matcher = [
     ['foo', 'bar', 301],
@@ -25,6 +25,7 @@ $matcher = [
 
 if (!$socket = stream_socket_server("tcp://$ip:$port", $errNo, $errMsg)) {
     echo "Couldn't create stream_socket_server: [$errNo] $errMsg";
+
     exit(1);
 }
 
@@ -38,7 +39,7 @@ while (true) {
 
         $req = rtrim(trim($req), '\n');
 
-        $cmd = substr($req, 0, 3);
+        $cmd = substr($req, 0, strpos($req, ' '));
 
         if ($cmd === 'GET') {
             findRedirect($client, $req, $matcher);
@@ -46,6 +47,7 @@ while (true) {
             logRedirect($client, $req);
         } else {
             echo "Unknown command: $cmd";
+
             exit(1);
         }
 

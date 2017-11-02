@@ -28,7 +28,7 @@ class Client
      * @param bool            $debug
      * @param LoggerInterface $logger
      */
-    public function __construct(array $connectionsOptions, $timeout = 1000000, $debug = false, LoggerInterface $logger = null)
+    public function __construct(array $connectionsOptions, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
     {
         if (!$connectionsOptions) {
             throw new BadConfigurationException('At least one connection is required.');
@@ -199,7 +199,7 @@ class Client
             sprintf('tcp://%s:%s', $options['host'], $options['port']),
             $errNo,
             $errMsg,
-            1, // timeout in seconds
+            1, // This value is not used but it should not be 0
             STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT
         );
     }

@@ -33,11 +33,14 @@ while (true) {
     $client = stream_socket_accept($socket, $timeout);
 
     while (true) {
+        if (stream_get_meta_data($client)['eof']) {
+            break;
+        }
         if (!$req = fgets($client)) {
             continue;
         }
 
-        $req = rtrim(trim($req), '\n');
+        $req = rtrim(trim($req), "\n");
 
         $cmd = substr($req, 0, strpos($req, ' '));
 
@@ -46,12 +49,10 @@ while (true) {
         } elseif ($cmd === 'LOG') {
             logRedirect($client, $req);
         } else {
-            echo "Unknown command: $cmd";
+            echo "Unknown command: '$cmd'\n";
 
-            exit(1);
+            continue;
         }
-
-        break;
     }
 
     fclose($client);

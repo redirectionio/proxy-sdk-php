@@ -4,11 +4,11 @@
  * Examples of payload.
  *
  * GET.
- * Request: GET {"host": "host1.com", "request_uri": "foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com"}\n
+ * Request: GET {"host": "host1.com", "request_uri": "foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com"}
  * Response: 301|http://host1.com/bar
  *
  * LOG.
- * Request: LOG {"status_code": 301, "host": "host1.com", "request_uri": "foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com"}\n
+ * Request: LOG {"status_code": 301, "host": "host1.com", "request_uri": "foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com"}
  * Response: ok
  */
 set_time_limit(0);
@@ -28,6 +28,8 @@ if (!$socket = stream_socket_server("tcp://$ip:$port", $errNo, $errMsg)) {
 
     exit(1);
 }
+
+echo "Fake agent started on tcp://$ip:$port\n";
 
 while (true) {
     $client = stream_socket_accept($socket, $timeout);

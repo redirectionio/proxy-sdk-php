@@ -1,4 +1,4 @@
-# redirection.io PHP Client
+# redirection.io PHP SDK
 
 redirection.io is a tool to track HTTP errors and setup useful HTTP
 redirections. It listens your website's HTTP traffic and logs every HTTP errors,

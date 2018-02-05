@@ -1,25 +1,24 @@
 <?php
 
-namespace tests\RedirectionIO\Client;
+namespace RedirectionIO\Client\Sdk\Tests;
 
 use PHPUnit\Framework\TestCase;
-use RedirectionIO\Client\Client;
-use RedirectionIO\Client\HttpMessage\RedirectResponse;
-use RedirectionIO\Client\HttpMessage\Request;
-use RedirectionIO\Client\HttpMessage\Response;
+use RedirectionIO\Client\Sdk\Client;
+use RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse;
+use RedirectionIO\Client\Sdk\HttpMessage\Request;
+use RedirectionIO\Client\Sdk\HttpMessage\Response;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\PhpExecutableFinder;
-use Symfony\Component\Process\ProcessBuilder;
+use Symfony\Component\Process\Process;
 
 /**
- * @covers \RedirectionIO\Client\Client
+ * @covers \RedirectionIO\Client\Sdk\Client
  */
 class ClientTest extends TestCase
 {
     private $host = 'localhost';
     private $port = 3100;
     private $client;
-    private $agent;
 
     public static function setUpBeforeClass()
     {
@@ -84,7 +83,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @expectedException \RedirectionIO\Client\Exception\AgentNotFoundException
+     * @expectedException \RedirectionIO\Client\Sdk\Exception\AgentNotFoundException
      * @expectedExceptionMessage Agent not found.
      */
     public function testFindRedirectWhenAgentDownAndDebug()
@@ -119,7 +118,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @expectedException \RedirectionIO\Client\Exception\AgentNotFoundException
+     * @expectedException \RedirectionIO\Client\Sdk\Exception\AgentNotFoundException
      * @expectedExceptionMessage Agent not found.
      */
     public function testLogRedirectionWhenAgentDownAndDebug()
@@ -169,16 +168,13 @@ class ClientTest extends TestCase
 
         $agent->stop();
 
-        // Ensure the agent is killed
-        usleep(200000);
-
         $response = $client->findRedirect($request);
 
         $this->assertNull($response);
     }
 
     /**
-     * @expectedException \RedirectionIO\Client\Exception\BadConfigurationException
+     * @expectedException \RedirectionIO\Client\Sdk\Exception\BadConfigurationException
      * @expectedExceptionMessage At least one connection is required.
      */
     public function testCannotAllowInstantiationWithEmptyConnectionsOptions()
@@ -187,7 +183,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @expectedException \RedirectionIO\Client\Exception\BadConfigurationException
+     * @expectedException \RedirectionIO\Client\Sdk\Exception\BadConfigurationException
      * @expectedExceptionMessage The required options "host", "port" are missing.
      */
     public function testCannotAllowInstantiationWithEmptyConnectionOptions()
@@ -202,14 +198,14 @@ class ClientTest extends TestCase
             throw new \RuntimeException('Unable to find PHP binary to run a fake agent.');
         }
 
-        $agent = ProcessBuilder::create(['exec', $binary, __DIR__ . '/../src/Resources/fake_agent.php'])
-            ->setEnv('RIO_PORT', $port)
-            ->getProcess()
+        $agent = new Process([$binary, __DIR__ . '/../src/Resources/fake_agent.php']);
+        $agent
+            ->inheritEnvironmentVariables(true)
+            ->setEnv(['RIO_PORT' => $port])
+            ->start()
         ;
-        $agent->start();
 
-        // the php script may take few time before being ready
-        usleep(200000);
+        static::waitUntilProcReady($agent);
 
         if ($agent->isTerminated() && !$agent->isSuccessful()) {
             throw new ProcessFailedException($agent);
@@ -230,5 +226,17 @@ class ClientTest extends TestCase
         $referer = array_key_exists('referer', $options) ? $options['referer'] : 'http://host0.com';
 
         return new Request($host, $path, $userAgent, $referer);
+    }
+
+    private static function waitUntilProcReady(Process $proc)
+    {
+        while (true) {
+            usleep(50000);
+            foreach ($proc as $type => $data) {
+                if ($proc::OUT === $type || $proc::ERR === $type) {
+                    break 2;
+                }
+            }
+        }
     }
 }

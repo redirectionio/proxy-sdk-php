@@ -14,7 +14,7 @@
 
     <testsuites>
         <testsuite name="redirection.io PHP Client Test Suite">
-            <directory>./tests/</directory>
+            <directory>./Tests/</directory>
         </testsuite>
     </testsuites>
 
@@ -22,13 +22,13 @@
         <whitelist>
             <directory>./</directory>
             <exclude>
-                <directory>./tests</directory>
+                <directory>./Tests</directory>
                 <directory>./vendor</directory>
             </exclude>
         </whitelist>
     </filter>
 
-   <listeners>
+    <listeners>
         <listener class="Symfony\Bridge\PhpUnit\CoverageListener" />
     </listeners>
 

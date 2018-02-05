@@ -7,8 +7,8 @@ so you can check that the project's redirection rules apply efficiently.
 Quick demo (see below for detailed info):
 
 ```php
-$client = new RedirectionIO\Client\Client($connectionsOptions);
-$request = new RedirectionIO\Client\HttpMessage\Request(
+$client = new RedirectionIO\Client\Sdk\Client($connectionsOptions);
+$request = new RedirectionIO\Client\Sdk\HttpMessage\Request(
     $_SERVER['HTTP_HOST'],
     $_SERVER['REQUEST_URI'],
     $_SERVER['HTTP_USER_AGENT'],
@@ -44,7 +44,7 @@ To use redirection.io in your project, add it to your composer.json file:
 Before starting, you need to instantiate a new Client.
 
 ```php
-use RedirectionIO\Client\Client;
+use RedirectionIO\Client\Sdk\Client;
 
 $client = new Client(array $connectionsOptions, $timeout = 1000000, $debug = false, LoggerInterface $logger = null);
 ```
@@ -71,17 +71,17 @@ Check if request URI matches a redirect rule in the agent. If yes return a
 `RedirectResponse`, else return `null`.
 
 ```php
-use RedirectionIO\Client\Client;
-use RedirectionIO\Client\HttpMessage\Request;
+use RedirectionIO\Client\Sdk\Client;
+use RedirectionIO\Client\Sdk\HttpMessage\Request;
 
 $client->findRedirect(Request $request);
 ```
 
 Parameter:
-- `\RedirectionIO\Client\HttpMessage\Request $request`.
+- `\RedirectionIO\Client\Sdk\HttpMessage\Request $request`.
 
 Return values:
-- `\RedirectionIO\Client\HttpMessage\RedirectResponse $response` if agent has found a redirect rule for the current request uri;
+- `\RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse $response` if agent has found a redirect rule for the current request uri;
 - `null` if there isn't redirect rule set for the current uri in the agent.
 
 ### Log a request/response couple
@@ -89,16 +89,16 @@ Return values:
 Allow you to log a request/response couple for every request.
 
 ```php
-use RedirectionIO\Client\Client;
-use RedirectionIO\Client\HttpMessage\Response;
-use RedirectionIO\Client\HttpMessage\Request;
+use RedirectionIO\Client\Sdk\Client;
+use RedirectionIO\Client\Sdk\HttpMessage\Response;
+use RedirectionIO\Client\Sdk\HttpMessage\Request;
 
 $client->log(Request $request, Response $response);
 ```
 
 Parameters:
-- `\RedirectionIO\Client\HttpMessage\Response $request`
-- `\RedirectionIO\Client\HttpMessage\Request $response`
+- `\RedirectionIO\Client\Sdk\HttpMessage\Response $request`
+- `\RedirectionIO\Client\Sdk\HttpMessage\Request $response`
 
 
 Return value:

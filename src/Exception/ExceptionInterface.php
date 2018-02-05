@@ -1,6 +1,6 @@
 <?php
 
-namespace RedirectionIO\Client\Exception;
+namespace RedirectionIO\Client\Sdk\Exception;
 
 interface ExceptionInterface
 {

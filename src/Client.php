@@ -1,15 +1,15 @@
 <?php
 
-namespace RedirectionIO\Client;
+namespace RedirectionIO\Client\Sdk;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use RedirectionIO\Client\Exception\AgentNotFoundException;
-use RedirectionIO\Client\Exception\BadConfigurationException;
-use RedirectionIO\Client\Exception\ExceptionInterface;
-use RedirectionIO\Client\HttpMessage\RedirectResponse;
-use RedirectionIO\Client\HttpMessage\Request;
-use RedirectionIO\Client\HttpMessage\Response;
+use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
+use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
+use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
+use RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse;
+use RedirectionIO\Client\Sdk\HttpMessage\Request;
+use RedirectionIO\Client\Sdk\HttpMessage\Response;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface as OptionsResolverExceptionInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

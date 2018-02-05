@@ -1,6 +1,6 @@
 <?php
 
-namespace RedirectionIO\Client\HttpMessage;
+namespace RedirectionIO\Client\Sdk\HttpMessage;
 
 class Response
 {

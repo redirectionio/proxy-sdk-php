@@ -10,8 +10,6 @@ use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
 use RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
-use Symfony\Component\OptionsResolver\Exception\ExceptionInterface as OptionsResolverExceptionInterface;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class Client
 {
@@ -94,15 +92,18 @@ class Client
 
     private function resolveConnectionOptions(array $options = [])
     {
-        $optionsResolver = new OptionsResolver();
-        $optionsResolver->setRequired(['host', 'port']);
+        if (isset($options['remote_socket'])) {
+            $options['remote_socket'] = 'unix://' . $options['remote_socket'];
+            $options['retries'] = 2;
 
-        try {
-            $options = $optionsResolver->resolve($options);
-        } catch (OptionsResolverExceptionInterface $e) {
-            throw new BadConfigurationException($e->getMessage(), 0, $e);
+            return $options;
         }
 
+        if (!isset($options['host']) || !isset($options['port'])) {
+            throw new BadConfigurationException('The required options "host", "port" are missing.');
+        }
+
+        $options['remote_socket'] = sprintf('tcp://%s:%s', $options['host'], $options['port']);
         $options['retries'] = 2;
 
         return $options;
@@ -196,7 +197,7 @@ class Client
     private function doConnect($options)
     {
         return stream_socket_client(
-            sprintf('tcp://%s:%s', $options['host'], $options['port']),
+            $options['remote_socket'],
             $errNo,
             $errMsg,
             1, // This value is not used but it should not be 0

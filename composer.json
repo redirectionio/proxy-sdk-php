@@ -18,8 +18,7 @@
         }
     ],
     "require": {
-        "psr/log": "^1.0",
-        "symfony/options-resolver": "^3.3"
+        "psr/log": "^1.0"
     },
     "require-dev": {
         "symfony/phpunit-bridge": "^3.4@beta",

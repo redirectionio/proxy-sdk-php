@@ -13,6 +13,8 @@
  */
 set_time_limit(0);
 
+$socket_type = isset($_SERVER['RIO_SOCKET_TYPE']) ? $_SERVER['RIO_SOCKET_TYPE'] : 'AF_INET';
+$socket_path = isset($_SERVER['RIO_SOCKET_PATH']) ? $_SERVER['RIO_SOCKET_PATH'] : sys_get_temp_dir() . '/fake_agent.sock';
 $ip = isset($_SERVER['RIO_HOST']) ? $_SERVER['RIO_HOST'] : 'localhost';
 $port = isset($_SERVER['RIO_PORT']) ? $_SERVER['RIO_PORT'] : 3100;
 $timeout = 1000000; // seconds
@@ -23,13 +25,25 @@ $matcher = [
     ['uier', 'grault', 308],
 ];
 
-if (!$socket = stream_socket_server("tcp://$ip:$port", $errNo, $errMsg)) {
-    echo "Couldn't create stream_socket_server: [$errNo] $errMsg";
+switch ($socket_type) {
+    case 'AF_INET':
+        $local_socket = "tcp://$ip:$port";
+        break;
+    case 'AF_UNIX':
+        $local_socket = "unix://$socket_path";
+        break;
+    default:
+        echo 'Please set a `RIO_SOCKET_TYPE` env var to `AF_INET` or `AF_UNIX`';
+        exit(1);
+}
 
+@unlink($socket_path);
+if (!$socket = stream_socket_server($local_socket, $errNo, $errMsg)) {
+    echo "Couldn't create stream_socket_server: [$errNo] $errMsg";
     exit(1);
 }
 
-echo "Fake agent started on tcp://$ip:$port\n";
+echo "Fake agent started on $local_socket\n";
 
 while (true) {
     $client = stream_socket_accept($socket, $timeout);

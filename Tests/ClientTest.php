@@ -43,6 +43,21 @@ class ClientTest extends TestCase
         $this->assertSame('http://host1.com/bar', $response->getLocation());
     }
 
+    public function testFindRedirectWhenExistUsingUnixSocket()
+    {
+        $agent = static::startAgent(['socket_type' => 'AF_UNIX']);
+
+        $client = new Client(['host1' => ['remote_socket' => sys_get_temp_dir() . '/fake_agent.sock']]);
+
+        $request = $this->createRequest(['path' => 'foo']);
+
+        $response = $client->findRedirect($request);
+
+        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertSame(301, $response->getStatusCode());
+        $this->assertSame('http://host1.com/bar', $response->getLocation());
+    }
+
     public function testFindRedirectWhenExistTwice()
     {
         $request = $this->createRequest(['path' => 'foo']);
@@ -151,7 +166,7 @@ class ClientTest extends TestCase
 
     public function testWhenAgentGoesDown()
     {
-        $agent = static::startAgent(3101);
+        $agent = static::startAgent(['port' => 3101]);
 
         $client = new Client([
             'host1' => ['host' => 'unknown-host', 'port' => 80],
@@ -191,8 +206,11 @@ class ClientTest extends TestCase
         $client = new Client([[]]);
     }
 
-    private static function startAgent($port = 3100)
+    private static function startAgent($options = [])
     {
+        $socket_type = isset($options['socket_type']) ? $options['socket_type'] : 'AF_INET';
+        $port = isset($options['port']) ? $options['port'] : 3100;
+
         $finder = new PhpExecutableFinder();
         if (false === $binary = $finder->find()) {
             throw new \RuntimeException('Unable to find PHP binary to run a fake agent.');
@@ -201,7 +219,7 @@ class ClientTest extends TestCase
         $agent = new Process([$binary, __DIR__ . '/../src/Resources/fake_agent.php']);
         $agent
             ->inheritEnvironmentVariables(true)
-            ->setEnv(['RIO_PORT' => $port])
+            ->setEnv(['RIO_SOCKET_TYPE' => $socket_type, 'RIO_PORT' => $port])
             ->start()
         ;
 
@@ -220,10 +238,10 @@ class ClientTest extends TestCase
 
     private function createRequest($options = [])
     {
-        $host = array_key_exists('host', $options) ? $options['host'] : 'host1.com';
-        $path = array_key_exists('path', $options) ? $options['path'] : '';
-        $userAgent = array_key_exists('user_agent', $options) ? $options['user_agent'] : 'redirection-io-client/0.0.1';
-        $referer = array_key_exists('referer', $options) ? $options['referer'] : 'http://host0.com';
+        $host = isset($options['host']) ? $options['host'] : 'host1.com';
+        $path = isset($options['path']) ? $options['path'] : '';
+        $userAgent = isset($options['user_agent']) ? $options['user_agent'] : 'redirection-io-client/0.0.1';
+        $referer = isset($options['referer']) ? $options['referer'] : 'http://host0.com';
 
         return new Request($host, $path, $userAgent, $referer);
     }

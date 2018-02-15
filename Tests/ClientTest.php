@@ -34,13 +34,13 @@ class ClientTest extends TestCase
 
     public function testFindRedirectWhenExist()
     {
-        $request = $this->createRequest(['path' => 'foo']);
+        $request = $this->createRequest(['path' => '/foo']);
 
         $response = $this->client->findRedirect($request);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://host1.com/bar', $response->getLocation());
+        $this->assertSame('/bar', $response->getLocation());
     }
 
     public function testFindRedirectWhenExistUsingUnixSocket()
@@ -49,35 +49,35 @@ class ClientTest extends TestCase
 
         $client = new Client(['host1' => ['remote_socket' => sys_get_temp_dir() . '/fake_agent.sock']]);
 
-        $request = $this->createRequest(['path' => 'foo']);
+        $request = $this->createRequest(['path' => '/foo']);
 
         $response = $client->findRedirect($request);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://host1.com/bar', $response->getLocation());
+        $this->assertSame('/bar', $response->getLocation());
     }
 
     public function testFindRedirectWhenExistTwice()
     {
-        $request = $this->createRequest(['path' => 'foo']);
+        $request = $this->createRequest(['path' => '/foo']);
 
         $response = $this->client->findRedirect($request);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://host1.com/bar', $response->getLocation());
+        $this->assertSame('/bar', $response->getLocation());
 
         $response = $this->client->findRedirect($request);
 
         $this->assertInstanceOf(RedirectResponse::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://host1.com/bar', $response->getLocation());
+        $this->assertSame('/bar', $response->getLocation());
     }
 
     public function testFindRedirectWhenNotExist()
     {
-        $request = $this->createRequest(['path' => 'hello']);
+        $request = $this->createRequest(['path' => '/hello']);
 
         $response = $this->client->findRedirect($request);
 
@@ -155,13 +155,13 @@ class ClientTest extends TestCase
             'host2' => ['host' => 'unknown-host', 'port' => 81],
             'host3' => ['host' => $this->host, 'port' => $this->port],
         ]);
-        $request = $this->createRequest(['path' => 'foo']);
+        $request = $this->createRequest(['path' => '/foo']);
 
         $response = $client->findRedirect($request);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://host1.com/bar', $response->getLocation());
+        $this->assertSame('/bar', $response->getLocation());
     }
 
     public function testWhenAgentGoesDown()
@@ -173,13 +173,13 @@ class ClientTest extends TestCase
             'host2' => ['host' => 'unknown-host', 'port' => 81],
             'host3' => ['host' => $this->host, 'port' => 3101],
         ]);
-        $request = $this->createRequest(['path' => 'foo']);
+        $request = $this->createRequest(['path' => '/foo']);
 
         $response = $client->findRedirect($request);
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
-        $this->assertSame('http://host1.com/bar', $response->getLocation());
+        $this->assertSame('/bar', $response->getLocation());
 
         $agent->stop();
 

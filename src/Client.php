@@ -48,6 +48,7 @@ class Client
             'request_uri' => $request->getPath(),
             'user_agent' => $request->getUserAgent(),
             'referer' => $request->getReferer(),
+            'use_json' => true,
         ];
 
         try {
@@ -64,9 +65,9 @@ class Client
             return null;
         }
 
-        list($code, $link) = explode('|', $agentResponse);
+        $agentResponse = json_decode($agentResponse);
 
-        return new RedirectResponse($link, (int) $code);
+        return new RedirectResponse($agentResponse->location, (int) $agentResponse->status_code);
     }
 
     public function log(Request $request, Response $response)
@@ -77,6 +78,7 @@ class Client
             'request_uri' => $request->getPath(),
             'user_agent' => $request->getUserAgent(),
             'referer' => $request->getReferer(),
+            'use_json' => true,
         ];
 
         try {
@@ -93,7 +95,18 @@ class Client
     private function resolveConnectionOptions(array $options = [])
     {
         if (isset($options['remote_socket'])) {
-            $options['remote_socket'] = 'unix://' . $options['remote_socket'];
+            $remoteSocket = explode(':', $options['remote_socket']);
+
+            if (!isset($remoteSocket[0]) || isset($remoteSocket[2])) {
+                throw new BadConfigurationException('The option "remote_socket" should have "/link/to/agent/socket" or "ip_agent:port" format.');
+            }
+
+            if (!isset($remoteSocket[1])) {
+                $options['remote_socket'] = 'unix://' . $remoteSocket[0];
+            } else {
+                $options['remote_socket'] = sprintf('tcp://%s:%s', $remoteSocket[0], $remoteSocket[1]);
+            }
+
             $options['retries'] = 2;
 
             return $options;

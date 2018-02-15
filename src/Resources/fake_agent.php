@@ -4,11 +4,11 @@
  * Examples of payload.
  *
  * GET.
- * Request: GET {"host": "host1.com", "request_uri": "foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com"}
- * Response: 301|http://host1.com/bar
+ * Request: GET {"host": "host1.com", "request_uri": "/foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com", "use_json": true}
+ * Response: {"status_code":301,"location":"/bar"}
  *
  * LOG.
- * Request: LOG {"status_code": 301, "host": "host1.com", "request_uri": "foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com"}
+ * Request: LOG {"status_code": 301, "host": "host1.com", "request_uri": "/foo", "user_agent": "redirection-io-client/0.0.1", "referer": "http://host0.com", "use_json": true}
  * Response: ok
  */
 set_time_limit(0);
@@ -19,10 +19,10 @@ $ip = isset($_SERVER['RIO_HOST']) ? $_SERVER['RIO_HOST'] : 'localhost';
 $port = isset($_SERVER['RIO_PORT']) ? $_SERVER['RIO_PORT'] : 3100;
 $timeout = 1000000; // seconds
 $matcher = [
-    ['foo', 'bar', 301],
-    ['baz', 'qux', 302],
-    ['quux', 'corge', 307],
-    ['uier', 'grault', 308],
+    ['/foo', '/bar', 301],
+    ['/baz', '/qux', 302],
+    ['/quux', '/corge', 307],
+    ['/uier', '/grault', 308],
 ];
 
 switch ($socket_type) {
@@ -84,8 +84,12 @@ function findRedirect($client, $req, $matcher)
 
     for ($i = 0; $i < count($matcher); ++$i) {
         if ($matcher[$i][0] === $req['request_uri']) {
-            $res = "{$matcher[$i][2]}|http://{$req['host']}/{$matcher[$i][1]}";
-            $res = preg_replace('/\s+/', '', $res);
+            $res = [
+                'status_code' => $matcher[$i][2],
+                'location' => $matcher[$i][1],
+            ];
+            $res = json_encode($res);
+
             fwrite($client, $res, strlen($res));
             $found = true;
             break;

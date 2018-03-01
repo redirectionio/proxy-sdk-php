@@ -1,5 +1,5 @@
 {
-    "name": "redirectionio/sdk",
+    "name": "redirectionio/proxy-sdk",
     "description": "RedirectionIO Proxy PHP SDK",
     "type": "library",
     "license": "MIT",

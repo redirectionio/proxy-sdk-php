@@ -42,7 +42,7 @@ $client->log($request, $response);
 
 To use redirection.io in your project, add it to your composer.json file:
 
-    $ composer require redirectionio/sdk
+    $ composer require redirectionio/proxy-sdk
 
 ## Usage
 

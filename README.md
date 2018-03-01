@@ -1,6 +1,13 @@
-# redirection.io PHP SDK
+# RedirectionIO Proxy PHP SDK
 
-redirection.io is a tool to track HTTP errors and setup useful HTTP
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
+[![Build Status](https://img.shields.io/travis/redirectionio/proxy-sdk-php/master.svg)](https://travis-ci.org/redirectionio/proxy-sdk-php)
+[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/redirectionio/proxy-sdk-php.svg)](https://scrutinizer-ci.com/g/redirectionio/proxy-sdk-php)
+[![Quality Score](https://img.shields.io/scrutinizer/g/redirectionio/proxy-sdk-php.svg)](https://scrutinizer-ci.com/g/redirectionio/proxy-sdk-php)
+
+[![Email](https://img.shields.io/badge/email-support@redirection.io-blue.svg)](mailto:support@redirection.io)
+
+[redirection.io](https://redirection.io) is a tool to track HTTP errors and setup useful HTTP
 redirections. It listens your website's HTTP traffic and logs every HTTP errors,
 so you can check that the project's redirection rules apply efficiently.
 

@@ -48,6 +48,10 @@ echo "Fake agent started on $local_socket\n";
 while (true) {
     $client = stream_socket_accept($socket, $timeout);
 
+    if (!$client) {
+        continue;
+    }
+
     while (true) {
         if (stream_get_meta_data($client)['eof']) {
             break;
@@ -63,7 +67,7 @@ while (true) {
         if ($cmd === 'GET') {
             findRedirect($client, $req, $matcher);
         } elseif ($cmd === 'LOG') {
-            logRedirect($client, $req);
+            logRedirect($client);
         } else {
             echo "Unknown command: '$cmd'\n";
 
@@ -81,8 +85,9 @@ function findRedirect($client, $req, $matcher)
     $req = json_decode(ltrim($req, 'GET '), true);
 
     $found = false;
+    $nbMatchers = count($matcher);
 
-    for ($i = 0; $i < count($matcher); ++$i) {
+    for ($i = 0; $i < $nbMatchers; ++$i) {
         if ($matcher[$i][0] === $req['request_uri']) {
             $res = [
                 'status_code' => $matcher[$i][2],
@@ -102,8 +107,7 @@ function findRedirect($client, $req, $matcher)
     }
 }
 
-function logRedirect($client, $req)
+function logRedirect($client)
 {
-    $req = json_decode(ltrim($req, 'LOG '), true);
     fwrite($client, 1, 1);
 }

@@ -28,7 +28,7 @@ class Client
      */
     public function __construct(array $connectionsOptions, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
     {
-        if (!$connectionsOptions) {
+        if (empty($connectionsOptions)) {
             throw new BadConfigurationException('At least one connection is required.');
         }
 
@@ -232,11 +232,11 @@ class Client
     {
         set_error_handler(__CLASS__ . '::handleInternalError');
 
-        $returnValue = $defaultReturnValue;
-
         try {
             $returnValue = call_user_func_array([$this, $method], $args);
         } catch (\ErrorException $exception) {
+            $returnValue = $defaultReturnValue;
+
             $this->logger->warning('Impossible to execute a boxed called.', [
                 'method' => $method,
                 'default_return_value' => $defaultReturnValue,

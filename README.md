@@ -1,5 +1,6 @@
 # RedirectionIO Proxy PHP SDK
 
+[![Latest Version](https://img.shields.io/github/release/redirectionio/proxy-sdk-php.svg)](https://github.com/redirectionio/proxy-sdk-php)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 [![Build Status](https://img.shields.io/travis/redirectionio/proxy-sdk-php/master.svg)](https://travis-ci.org/redirectionio/proxy-sdk-php)
 [![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/redirectionio/proxy-sdk-php.svg)](https://scrutinizer-ci.com/g/redirectionio/proxy-sdk-php)
@@ -121,4 +122,4 @@ We take care of all new PRs. Any contribution is welcome :) Thanks.
 
 ### Run tests
 
-    $ composer run test
+    $ composer test

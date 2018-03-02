@@ -1,6 +1,6 @@
 {
     "name": "redirectionio/proxy-sdk",
-    "description": "RedirectionIO Proxy PHP SDK",
+    "description": "PHP common code for redirection.io proxy",
     "type": "library",
     "license": "MIT",
     "authors": [

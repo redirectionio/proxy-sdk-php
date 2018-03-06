@@ -1,4 +1,4 @@
-# RedirectionIO Proxy PHP SDK
+# redirection.io Proxy PHP SDK
 
 [![Latest Version](https://img.shields.io/github/release/redirectionio/proxy-sdk-php.svg)](https://github.com/redirectionio/proxy-sdk-php)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)

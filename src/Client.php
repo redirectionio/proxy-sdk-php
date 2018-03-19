@@ -48,6 +48,7 @@ class Client
             'request_uri' => $request->getPath(),
             'user_agent' => $request->getUserAgent(),
             'referer' => $request->getReferer(),
+            'scheme' => $request->getScheme(),
             'use_json' => true,
         ];
 
@@ -78,6 +79,7 @@ class Client
             'request_uri' => $request->getPath(),
             'user_agent' => $request->getUserAgent(),
             'referer' => $request->getReferer(),
+            'scheme' => $request->getScheme(),
             'use_json' => true,
         ];
 

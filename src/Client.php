@@ -62,7 +62,7 @@ class Client
             return null;
         }
 
-        if (strlen($agentResponse) === 0) {
+        if (0 === strlen($agentResponse)) {
             return null;
         }
 
@@ -104,7 +104,7 @@ class Client
             }
 
             if (!isset($remoteSocket[1])) {
-                $options['remote_socket'] = 'unix://' . $remoteSocket[0];
+                $options['remote_socket'] = 'unix://'.$remoteSocket[0];
             } else {
                 $options['remote_socket'] = sprintf('tcp://%s:%s', $remoteSocket[0], $remoteSocket[1]);
             }
@@ -128,7 +128,7 @@ class Client
     {
         $connection = $this->getConnection();
 
-        $content = $command . ' ' . json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
+        $content = $command.' '.json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n";
         $sent = $this->box('doSend', false, [$connection, $content]);
 
         // if the pipe is broken, `fwrite` will throw a Notice
@@ -232,7 +232,7 @@ class Client
 
     private function box($method, $defaultReturnValue = null, array $args = [])
     {
-        set_error_handler(__CLASS__ . '::handleInternalError');
+        set_error_handler(__CLASS__.'::handleInternalError');
 
         try {
             $returnValue = call_user_func_array([$this, $method], $args);

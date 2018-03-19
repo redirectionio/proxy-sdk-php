@@ -8,7 +8,7 @@ class RedirectResponse extends Response
 
     /**
      * @param string $location
-     * @param mixed  $statusCode
+     * @param int    $statusCode
      */
     public function __construct($location, $statusCode = 301)
     {

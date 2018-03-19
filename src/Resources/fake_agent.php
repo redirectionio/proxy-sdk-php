@@ -14,7 +14,7 @@
 set_time_limit(0);
 
 $socket_type = isset($_SERVER['RIO_SOCKET_TYPE']) ? $_SERVER['RIO_SOCKET_TYPE'] : 'AF_INET';
-$socket_path = isset($_SERVER['RIO_SOCKET_PATH']) ? $_SERVER['RIO_SOCKET_PATH'] : sys_get_temp_dir() . '/fake_agent.sock';
+$socket_path = isset($_SERVER['RIO_SOCKET_PATH']) ? $_SERVER['RIO_SOCKET_PATH'] : sys_get_temp_dir().'/fake_agent.sock';
 $ip = isset($_SERVER['RIO_HOST']) ? $_SERVER['RIO_HOST'] : 'localhost';
 $port = isset($_SERVER['RIO_PORT']) ? $_SERVER['RIO_PORT'] : 3100;
 $timeout = 1000000; // seconds
@@ -64,9 +64,9 @@ while (true) {
 
         $cmd = substr($req, 0, strpos($req, ' '));
 
-        if ($cmd === 'GET') {
+        if ('GET' === $cmd) {
             findRedirect($client, $req, $matcher);
-        } elseif ($cmd === 'LOG') {
+        } elseif ('LOG' === $cmd) {
             logRedirect($client);
         } else {
             echo "Unknown command: '$cmd'\n";

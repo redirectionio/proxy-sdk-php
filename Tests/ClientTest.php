@@ -47,7 +47,7 @@ class ClientTest extends TestCase
     {
         $agent = static::startAgent(['socket_type' => 'AF_UNIX']);
 
-        $client = new Client(['host1' => ['remote_socket' => sys_get_temp_dir() . '/fake_agent.sock']]);
+        $client = new Client(['host1' => ['remote_socket' => sys_get_temp_dir().'/fake_agent.sock']]);
 
         $request = $this->createRequest(['path' => '/foo']);
 
@@ -216,7 +216,7 @@ class ClientTest extends TestCase
             throw new \RuntimeException('Unable to find PHP binary to run a fake agent.');
         }
 
-        $agent = new Process([$binary, __DIR__ . '/../src/Resources/fake_agent.php']);
+        $agent = new Process([$binary, __DIR__.'/../src/Resources/fake_agent.php']);
         $agent
             ->inheritEnvironmentVariables(true)
             ->setEnv(['RIO_SOCKET_TYPE' => $socket_type, 'RIO_PORT' => $port])

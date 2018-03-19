@@ -15,6 +15,7 @@ class Request
      * @param string $path      Path of the URI instance
      * @param string $userAgent User-Agent header of the request
      * @param string $referer   Referer header of the request
+     * @param string $scheme    "http" or "https"
      */
     public function __construct($host, $path, $userAgent, $referer = '', $scheme = 'http')
     {

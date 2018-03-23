@@ -1,21 +1,14 @@
 # redirection.io Proxy PHP SDK
 
-[![Latest Version](https://img.shields.io/github/release/redirectionio/proxy-sdk-php.svg)](https://github.com/redirectionio/proxy-sdk-php)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
-[![Build Status](https://img.shields.io/travis/redirectionio/proxy-sdk-php/master.svg)](https://travis-ci.org/redirectionio/proxy-sdk-php)
-[![Code Coverage](https://img.shields.io/scrutinizer/coverage/g/redirectionio/proxy-sdk-php.svg)](https://scrutinizer-ci.com/g/redirectionio/proxy-sdk-php)
-[![Quality Score](https://img.shields.io/scrutinizer/g/redirectionio/proxy-sdk-php.svg)](https://scrutinizer-ci.com/g/redirectionio/proxy-sdk-php)
-
-[![Email](https://img.shields.io/badge/email-support@redirection.io-blue.svg)](mailto:support@redirection.io)
-
-[redirection.io](https://redirection.io) is a tool to track HTTP errors and setup useful HTTP
-redirections. It listens your website's HTTP traffic and logs every HTTP errors,
-so you can check that the project's redirection rules apply efficiently.
+[redirection.io](https://redirection.io) is a tool to track HTTP errors and
+setup useful HTTP redirections. It listens your website's HTTP traffic and logs
+every HTTP errors, so you can check that the project's redirection rules apply
+efficiently.
 
 Quick demo (see below for detailed info):
 
 ```php
-$client = new RedirectionIO\Client\Sdk\Client($connectionsOptions);
+$client = new RedirectionIO\Client\Sdk\Client($connections);
 $request = new RedirectionIO\Client\Sdk\HttpMessage\Request(
     $_SERVER['HTTP_HOST'],
     $_SERVER['REQUEST_URI'],
@@ -31,7 +24,7 @@ if (null === $response) {
 
 $client->log($request, $response);
 
-// Finally, Returns your content or redirect
+// Finally, Returns your response
 ```
 
 ## Requirements
@@ -54,20 +47,18 @@ Before starting, you need to instantiate a new Client.
 ```php
 use RedirectionIO\Client\Sdk\Client;
 
-$client = new Client(array $connectionsOptions, $timeout = 1000000, $debug = false, LoggerInterface $logger = null);
+$client = new Client(array $connections, int $timeout = 1000000, bool $debug = false, LoggerInterface $logger = null);
 ```
 
 Parameters:
 
-- `array $connectionsOptions` array of connection(s) parameters to the Agent(s)
+- `array $connections` array of connection(s) parameters to the Agent(s)
     ```php
-    $connectionsOptions = [
-        'connection1' => ['host' => 'host1', 'port' => 8001],
-        'connection2' => ['host' => 'host2', 'port' => 8002],
-        ...
+    $connections = [
+        'connection tcp' => 'tcp://127.0.0.1:20301',
+        'connection unix' => 'unix:///var/run/redirectionio_agent.sock',
     ];
 
-    // Note: 'host' and 'port' options are both required
     ```
 - `$timeout` timeout in microsecond for connection/request;
 - `$debug` enable or disable debug mode. In debug mode an exception is thrown is something goes wrong, if not every errors is silenced;

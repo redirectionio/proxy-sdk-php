@@ -16,8 +16,7 @@ use Symfony\Component\Process\Process;
  */
 class ClientTest extends TestCase
 {
-    private $host = 'localhost';
-    private $port = 3100;
+    private $connection = 'tcp://localhost:3100';
     private $client;
 
     public static function setUpBeforeClass()
@@ -28,7 +27,7 @@ class ClientTest extends TestCase
     public function setUp()
     {
         $this->client = new Client([
-            'host1' => ['host' => $this->host, 'port' => $this->port],
+            'host1' => $this->connection,
         ]);
     }
 
@@ -47,7 +46,7 @@ class ClientTest extends TestCase
     {
         $agent = static::startAgent(['socket_type' => 'AF_UNIX']);
 
-        $client = new Client(['host1' => ['remote_socket' => sys_get_temp_dir().'/fake_agent.sock']]);
+        $client = new Client(['host1' => 'unix://'.sys_get_temp_dir().'/fake_agent.sock']);
 
         $request = $this->createRequest(['path' => '/foo']);
 
@@ -87,7 +86,7 @@ class ClientTest extends TestCase
     public function testFindRedirectWhenAgentDown()
     {
         $client = new Client([
-            'host1' => ['host' => 'unknown-host', 'port' => 80],
+            'host1' => 'tcp://unknown-host:80',
         ]);
 
         $request = $this->createRequest();
@@ -104,7 +103,7 @@ class ClientTest extends TestCase
     public function testFindRedirectWhenAgentDownAndDebug()
     {
         $client = new Client([
-            'host1' => ['host' => 'unknown-host', 'port' => 80],
+            'host1' => 'tcp://unknown-host:80',
         ], 1000000, true);
 
         $request = $this->createRequest();
@@ -123,7 +122,7 @@ class ClientTest extends TestCase
     public function testLogRedirectionWhenAgentDown()
     {
         $client = new Client([
-            'host1' => ['host' => 'unknown-host', 'port' => 80],
+            'host1' => 'tcp://unknown-host:80',
         ]);
 
         $request = $this->createRequest();
@@ -139,7 +138,7 @@ class ClientTest extends TestCase
     public function testLogRedirectionWhenAgentDownAndDebug()
     {
         $client = new Client([
-            'host1' => ['host' => 'unknown-host', 'port' => 80],
+            'host1' => 'tcp://unknown-host:80',
         ], 1000000, true);
 
         $request = $this->createRequest();
@@ -151,9 +150,9 @@ class ClientTest extends TestCase
     public function testCanFindWorkingHostInMultipleHostsArray()
     {
         $client = new Client([
-            'host1' => ['host' => 'unknown-host', 'port' => 80],
-            'host2' => ['host' => 'unknown-host', 'port' => 81],
-            'host3' => ['host' => $this->host, 'port' => $this->port],
+            'host1' => 'tcp://unknown-host:80',
+            'host2' => 'tcp://unknown-host:81',
+            'host3' => $this->connection,
         ]);
         $request = $this->createRequest(['path' => '/foo']);
 
@@ -169,9 +168,9 @@ class ClientTest extends TestCase
         $agent = static::startAgent(['port' => 3101]);
 
         $client = new Client([
-            'host1' => ['host' => 'unknown-host', 'port' => 80],
-            'host2' => ['host' => 'unknown-host', 'port' => 81],
-            'host3' => ['host' => $this->host, 'port' => 3101],
+            'host1' => 'tcp://unknown-host:80',
+            'host2' => 'tcp://unknown-host:81',
+            'host3' => 'tcp://localhost:3101',
         ]);
         $request = $this->createRequest(['path' => '/foo']);
 
@@ -195,15 +194,6 @@ class ClientTest extends TestCase
     public function testCannotAllowInstantiationWithEmptyConnectionsOptions()
     {
         $client = new Client([]);
-    }
-
-    /**
-     * @expectedException \RedirectionIO\Client\Sdk\Exception\BadConfigurationException
-     * @expectedExceptionMessage The required options "host", "port" are missing.
-     */
-    public function testCannotAllowInstantiationWithEmptyConnectionOptions()
-    {
-        $client = new Client([[]]);
     }
 
     private static function startAgent($options = [])

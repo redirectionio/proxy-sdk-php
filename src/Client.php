@@ -13,27 +13,28 @@ use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
 class Client
 {
-    private $connectionsOptions;
-    private $currentConnection;
-    private $currentConnectionName;
+    private $connections;
     private $timeout;
     private $debug;
     private $logger;
+    private $currentConnection;
+    private $currentConnectionName;
 
     /**
-     * @param array           $connectionsOptions
-     * @param int             $timeout
-     * @param bool            $debug
-     * @param LoggerInterface $logger
+     * @param int  $timeout
+     * @param bool $debug
      */
-    public function __construct(array $connectionsOptions, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
+    public function __construct(array $connections, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
     {
-        if (empty($connectionsOptions)) {
+        if (!$connections) {
             throw new BadConfigurationException('At least one connection is required.');
         }
 
-        foreach ($connectionsOptions as $connectionName => $connectionOptions) {
-            $this->connectionsOptions[$connectionName] = $this->resolveConnectionOptions($connectionOptions);
+        foreach ($connections as $name => $connection) {
+            $this->connections[$name] = [
+                'remote_socket' => $connection,
+                'retries' => 2,
+            ];
         }
 
         $this->timeout = $timeout;
@@ -94,36 +95,6 @@ class Client
         }
     }
 
-    private function resolveConnectionOptions(array $options = [])
-    {
-        if (isset($options['remote_socket'])) {
-            $remoteSocket = explode(':', $options['remote_socket']);
-
-            if (!isset($remoteSocket[0]) || isset($remoteSocket[2])) {
-                throw new BadConfigurationException('The option "remote_socket" should have "/link/to/agent/socket" or "ip_agent:port" format.');
-            }
-
-            if (!isset($remoteSocket[1])) {
-                $options['remote_socket'] = 'unix://'.$remoteSocket[0];
-            } else {
-                $options['remote_socket'] = sprintf('tcp://%s:%s', $remoteSocket[0], $remoteSocket[1]);
-            }
-
-            $options['retries'] = 2;
-
-            return $options;
-        }
-
-        if (!isset($options['host']) || !isset($options['port'])) {
-            throw new BadConfigurationException('The required options "host", "port" are missing.');
-        }
-
-        $options['remote_socket'] = sprintf('tcp://%s:%s', $options['host'], $options['port']);
-        $options['retries'] = 2;
-
-        return $options;
-    }
-
     private function request($command, $context)
     {
         $connection = $this->getConnection();
@@ -134,10 +105,10 @@ class Client
         // if the pipe is broken, `fwrite` will throw a Notice
         if (false === $sent) {
             $this->logger->debug('Impossible to send content to the connection.', [
-                'options' => $this->connectionsOptions[$this->currentConnectionName],
+                'options' => $this->connections[$this->currentConnectionName],
             ]);
 
-            --$this->connectionsOptions[$this->currentConnectionName]['retries'];
+            --$this->connections[$this->currentConnectionName]['retries'];
             $this->currentConnection = null;
 
             return $this->request($command, $context);
@@ -148,10 +119,10 @@ class Client
         // false: the persistent connection is stale
         if (false === $received) {
             $this->logger->debug('Impossible to get content from the connection.', [
-                'options' => $this->connectionsOptions[$this->currentConnectionName],
+                'options' => $this->connections[$this->currentConnectionName],
             ]);
 
-            --$this->connectionsOptions[$this->currentConnectionName]['retries'];
+            --$this->connections[$this->currentConnectionName]['retries'];
             $this->currentConnection = null;
 
             return $this->request($command, $context);
@@ -166,31 +137,31 @@ class Client
             return $this->currentConnection;
         }
 
-        foreach ($this->connectionsOptions as $name => $connectionOptions) {
-            if ($connectionOptions['retries'] <= 0) {
+        foreach ($this->connections as $name => $connection) {
+            if ($connection['retries'] <= 0) {
                 continue;
             }
 
             $this->logger->debug('New connection chosen. Trying to connect.', [
-                'connectionOptions' => $connectionOptions,
+                'connection' => $connection,
                 'name' => $name,
             ]);
 
-            $connection = $this->box('doConnect', false, [$connectionOptions]);
+            $connection = $this->box('doConnect', false, [$connection]);
 
             if (false === $connection) {
                 $this->logger->debug('Impossible to connect to the connection.', [
-                    'connectionOptions' => $connectionOptions,
+                    'connection' => $connection,
                     'name' => $name,
                 ]);
 
-                $this->connectionsOptions[$name]['retries'] = 0;
+                $this->connections[$name]['retries'] = 0;
 
                 continue;
             }
 
             $this->logger->debug('New connection approved.', [
-                'connectionOptions' => $connectionOptions,
+                'connection' => $connection,
                 'name' => $name,
             ]);
 
@@ -203,7 +174,7 @@ class Client
         }
 
         $this->logger->error('Can not find an agent.', [
-            'connections_options' => $this->connectionsOptions,
+            'connections_options' => $this->connections,
         ]);
 
         throw new AgentNotFoundException();

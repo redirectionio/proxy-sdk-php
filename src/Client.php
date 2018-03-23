@@ -69,7 +69,7 @@ class Client
 
         $agentResponse = json_decode($agentResponse);
 
-        return $agentResponse->status_code == 410
+        return 410 == $agentResponse->status_code
             ? new Response(410)
             : new RedirectResponse($agentResponse->location, (int) $agentResponse->status_code);
     }

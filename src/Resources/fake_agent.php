@@ -23,6 +23,7 @@ $matcher = [
     ['/baz', '/qux', 302],
     ['/quux', '/corge', 307],
     ['/uier', '/grault', 308],
+    ['/garply', '', 410],
 ];
 
 switch ($socket_type) {

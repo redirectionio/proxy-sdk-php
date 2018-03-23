@@ -196,6 +196,16 @@ class ClientTest extends TestCase
         $client = new Client([]);
     }
 
+    public function testFind410ResponseWhenExist()
+    {
+        $request = $this->createRequest(['path' => '/garply']);
+
+        $response = $this->client->findRedirect($request);
+
+        $this->assertInstanceOf(Response::class, $response);
+        $this->assertSame(410, $response->getStatusCode());
+    }
+
     private static function startAgent($options = [])
     {
         $socket_type = isset($options['socket_type']) ? $options['socket_type'] : 'AF_INET';

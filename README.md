@@ -55,8 +55,8 @@ Parameters:
 - `array $connections` array of connection(s) parameters to the Agent(s)
     ```php
     $connections = [
-        'connection tcp' => 'tcp://127.0.0.1:20301',
-        'connection unix' => 'unix:///var/run/redirectionio_agent.sock',
+        'connection_tcp' => 'tcp://127.0.0.1:20301',
+        'connection_unix' => 'unix:///var/run/redirectionio_agent.sock',
     ];
 
     ```

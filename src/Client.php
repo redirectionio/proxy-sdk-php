@@ -67,11 +67,19 @@ class Client
             return null;
         }
 
-        $agentResponse = json_decode($agentResponse);
+        $json = json_decode($agentResponse, true);
 
-        return 410 == $agentResponse->status_code
+        if (null === $json) {
+            if ($this->debug) {
+                throw new \ErrorException(sprintf('Impossible to decode the JSON (%s). Content: "%s"', json_last_error_msg(), $agentResponse));
+            }
+
+            return null;
+        }
+
+        return 410 == $json['status_code']
             ? new Response(410)
-            : new RedirectResponse($agentResponse->location, (int) $agentResponse->status_code);
+            : new RedirectResponse($json['location'], (int) $json['status_code']);
     }
 
     public function log(Request $request, Response $response)

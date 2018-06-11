@@ -13,9 +13,8 @@ class RedirectResponse extends Response
      */
     public function __construct($location, $statusCode = 301, $ruleId = null)
     {
-        $this->location = $location;
-
         parent::__construct($statusCode, $ruleId);
+        $this->location = $location;
     }
 
     public function getLocation()

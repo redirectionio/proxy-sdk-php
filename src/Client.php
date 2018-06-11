@@ -77,9 +77,16 @@ class Client
             return null;
         }
 
-        return 410 == $json['status_code']
-            ? new Response(410)
-            : new RedirectResponse($json['location'], (int) $json['status_code']);
+        $ruleId = null;
+        if (isset($json['matched_rule'], $json['matched_rule']['id'])) {
+            $ruleId = $json['matched_rule']['id'];
+        }
+
+        if (410 === $json['status_code']) {
+            return new Response(410, $ruleId);
+        }
+
+        return new RedirectResponse($json['location'], (int) $json['status_code'], $ruleId);
     }
 
     public function log(Request $request, Response $response)
@@ -93,6 +100,14 @@ class Client
             'scheme' => $request->getScheme(),
             'use_json' => true,
         ];
+
+        if ($response instanceof RedirectResponse) {
+            $responseContext['target'] = $response->getLocation();
+        }
+
+        if ($response->getRuleId()) {
+            $responseContext['rule_id'] = $response->getRuleId();
+        }
 
         try {
             return (bool) $this->request('LOG', $responseContext);

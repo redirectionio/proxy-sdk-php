@@ -235,7 +235,7 @@ class Client
         } catch (\ErrorException $exception) {
             $returnValue = $defaultReturnValue;
 
-            $this->logger->warning('Impossible to execute a boxed called.', [
+            $this->logger->warning('Impossible to execute a boxed call.', [
                 'method' => $method,
                 'default_return_value' => $defaultReturnValue,
                 'args' => $args,

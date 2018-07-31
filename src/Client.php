@@ -78,15 +78,17 @@ class Client
         }
 
         $ruleId = null;
+        $location = null;
+
         if (isset($json['matched_rule'], $json['matched_rule']['id'])) {
             $ruleId = $json['matched_rule']['id'];
         }
 
-        if (410 === $json['status_code']) {
-            return new Response(410, $ruleId);
+        if (isset($json['location'])) {
+            $location = $json['location'];
         }
 
-        return new RedirectResponse($json['location'], (int) $json['status_code'], $ruleId);
+        return new Response((int) $json['status_code'], $ruleId, $location);
     }
 
     public function log(Request $request, Response $response)
@@ -101,7 +103,7 @@ class Client
             'use_json' => true,
         ];
 
-        if ($response instanceof RedirectResponse) {
+        if ($response->getLocation()) {
             $responseContext['target'] = $response->getLocation();
         }
 

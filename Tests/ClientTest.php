@@ -37,7 +37,7 @@ class ClientTest extends TestCase
 
         $response = $this->client->findRedirect($request);
 
-        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame('/bar', $response->getLocation());
     }
@@ -52,7 +52,7 @@ class ClientTest extends TestCase
 
         $response = $client->findRedirect($request);
 
-        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame('/bar', $response->getLocation());
     }
@@ -63,13 +63,13 @@ class ClientTest extends TestCase
 
         $response = $this->client->findRedirect($request);
 
-        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame('/bar', $response->getLocation());
 
         $response = $this->client->findRedirect($request);
 
-        $this->assertInstanceOf(RedirectResponse::class, $response);
+        $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame('/bar', $response->getLocation());
     }

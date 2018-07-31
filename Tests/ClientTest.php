@@ -4,7 +4,6 @@ namespace RedirectionIO\Client\Sdk\Tests;
 
 use PHPUnit\Framework\TestCase;
 use RedirectionIO\Client\Sdk\Client;
-use RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 use Symfony\Component\Process\Exception\ProcessFailedException;

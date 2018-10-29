@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.1.4
+
+- Fix fwrite reliability
+
 ## 0.1.3
 
 - Add target in every log sent, even if redirection does not come from a rule

@@ -7,7 +7,6 @@ use Psr\Log\NullLogger;
 use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
 use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
 use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
-use RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
@@ -63,7 +62,7 @@ class Client
             return null;
         }
 
-        if (0 === strlen($agentResponse)) {
+        if (0 === \strlen($agentResponse)) {
             return null;
         }
 
@@ -233,7 +232,7 @@ class Client
         set_error_handler(__CLASS__.'::handleInternalError');
 
         try {
-            $returnValue = call_user_func_array([$this, $method], $args);
+            $returnValue = \call_user_func_array([$this, $method], $args);
         } catch (\ErrorException $exception) {
             $returnValue = $defaultReturnValue;
 
@@ -267,7 +266,7 @@ class Client
      */
     private function fwrite($stream, $bytes)
     {
-        if (!strlen($bytes)) {
+        if (!\strlen($bytes)) {
             return 0;
         }
         $result = @fwrite($stream, $bytes);

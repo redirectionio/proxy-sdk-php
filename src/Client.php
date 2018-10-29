@@ -256,7 +256,7 @@ class Client
     }
 
     /**
-     * Replace fwrite behavior as api is broken in PHP.
+     * Replace fwrite behavior as API is broken in PHP.
      *
      * @see https://secure.phabricator.com/rPHU69490c53c9c2ef2002bc2dd4cecfe9a4b080b497
      *

@@ -15,14 +15,15 @@ $request = new RedirectionIO\Client\Sdk\HttpMessage\Request(
     $_SERVER['HTTP_USER_AGENT'],
     $_SERVER['HTTP_REFERER']
 );
-$response = $client->findRedirect($request);
+
+$response = $client->request(new RedirectionIO\Client\Sdk\Command\MatchWithResponseCommand($request));
 
 // There are no redirection for this Request
 if (null === $response) {
     $response = '...' // Handle your request with your application
 }
 
-$client->log($request, $response);
+$client->request(new RedirectionIO\Client\Sdk\Command\LogCommand($request, $response));
 
 // Finally, Returns your response
 ```
@@ -72,8 +73,32 @@ Check if request URI matches a redirect rule in the agent. If yes return a
 ```php
 use RedirectionIO\Client\Sdk\Client;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
+use RedirectionIO\Client\Sdk\Command\MatchCommand;
 
-$client->findRedirect(Request $request);
+$client->request(new MatchWithResponseCommand(Request $request);
+```
+
+Parameter:
+- `\RedirectionIO\Client\Sdk\HttpMessage\Request $request`.
+
+Return values:
+- `\RedirectionIO\Client\Sdk\HttpMessage\RedirectResponse $response` if agent has found a redirect rule for the current request uri;
+- `null` if there isn't redirect rule set for the current uri in the agent.
+
+### Find if a redirection rule exists for old agent (<1.4.0)
+
+Check if request URI matches a redirect rule in the agent. If yes return a
+`RedirectResponse`, else return `null`.
+
+This will also return null if the rule should have been matched against a Response Status Code. This is mainly
+for BC Compatibility and avoid old proxy to handle rules that it should not.
+
+```php
+use RedirectionIO\Client\Sdk\Client;
+use RedirectionIO\Client\Sdk\HttpMessage\Request;
+use RedirectionIO\Client\Sdk\Command\MatchCommand;
+
+$client->request(new MatchCommand(Request $request);
 ```
 
 Parameter:
@@ -89,10 +114,11 @@ Allow you to log a request/response couple for every request.
 
 ```php
 use RedirectionIO\Client\Sdk\Client;
+use RedirectionIO\Client\Sdk\Command\LogCommand;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 
-$client->log(Request $request, Response $response);
+$client->request(new LogCommand(Request $request, Response $response));
 ```
 
 Parameters:

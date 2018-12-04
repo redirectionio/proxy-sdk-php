@@ -53,27 +53,55 @@ while (true) {
         continue;
     }
 
-    while (true) {
-        if (stream_get_meta_data($client)['eof']) {
-            break;
+    $readPart = function ($client) {
+        $buffer = '';
+        while (true) {
+            if (stream_get_meta_data($client)['eof']) {
+                break;
+            }
+
+            $char = fread($client, 1);
+
+            if ($char === false) {
+                return false;
+            }
+
+            // On timeout char is empty
+            if ($char === '') {
+                return false;
+            }
+
+            if ($char === "\0") {
+                return $buffer;
+            }
+
+            $buffer .= $char;
         }
-        if (!$req = fgets($client)) {
-            continue;
-        }
+    };
 
-        $req = rtrim(trim($req), "\n");
+    $cmdName = $readPart($client);
 
-        $cmd = substr($req, 0, strpos($req, ' '));
+    if ($cmdName === false) {
+        fclose($client);
+        continue;
+    }
 
-        if ('GET' === $cmd) {
-            findRedirect($client, $req, $matcher);
-        } elseif ('LOG' === $cmd) {
-            logRedirect($client);
-        } else {
-            echo "Unknown command: '$cmd'\n";
+    $cmdData = $readPart($client);
 
-            continue;
-        }
+    if ($cmdData === false) {
+        fclose($client);
+        continue;
+    }
+
+    if ('MATCH' === $cmdName) {
+        findRedirect($client, $cmdData, $matcher);
+    } elseif ('LOG' === $cmdName) {
+        logRedirect($client);
+    } else {
+        echo "Unknown command: '$cmdName'\n";
+        fclose($client);
+
+        continue;
     }
 
     fclose($client);
@@ -81,34 +109,34 @@ while (true) {
 
 fclose($socket);
 
-function findRedirect($client, $req, $matcher)
+function findRedirect($client, $cmdData, $matcher)
 {
-    $req = json_decode(ltrim($req, 'GET '), true);
+    $req = json_decode($cmdData, true);
 
-    $found = false;
     $nbMatchers = count($matcher);
+
+    $res = json_encode([
+        'status_code' => 0,
+        'location' => '',
+    ]);
 
     for ($i = 0; $i < $nbMatchers; ++$i) {
         if ($matcher[$i][0] === $req['request_uri']) {
-            $res = [
+            $res = json_encode([
                 'status_code' => $matcher[$i][2],
                 'location' => $matcher[$i][1],
-            ];
-            $res = json_encode($res);
+            ]);
 
-            fwrite($client, $res, strlen($res));
-            $found = true;
             break;
         }
     }
 
-    if (!$found) {
-        $res = ' ';
-        fwrite($client, $res, strlen($res));
-    }
+    $writed = fwrite($client, $res . "\0", strlen($res) + 1);
+
+    var_dump($writed);
 }
 
 function logRedirect($client)
 {
-    fwrite($client, 1, 1);
+    //fwrite($client, 1, 1);
 }

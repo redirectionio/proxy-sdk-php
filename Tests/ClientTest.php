@@ -4,6 +4,8 @@ namespace RedirectionIO\Client\Sdk\Tests;
 
 use PHPUnit\Framework\TestCase;
 use RedirectionIO\Client\Sdk\Client;
+use RedirectionIO\Client\Sdk\Command\LogCommand;
+use RedirectionIO\Client\Sdk\Command\MatchCommand;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 use Symfony\Component\Process\Exception\ProcessFailedException;
@@ -16,6 +18,8 @@ use Symfony\Component\Process\Process;
 class ClientTest extends TestCase
 {
     private $connection = 'tcp://localhost:3100';
+
+    /** @var Client */
     private $client;
 
     public static function setUpBeforeClass()
@@ -27,14 +31,14 @@ class ClientTest extends TestCase
     {
         $this->client = new Client([
             'host1' => $this->connection,
-        ]);
+        ], 10000, true);
     }
 
     public function testFindRedirectWhenExist()
     {
         $request = $this->createRequest(['path' => '/foo']);
 
-        $response = $this->client->findRedirect($request);
+        $response = $this->client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
@@ -49,7 +53,7 @@ class ClientTest extends TestCase
 
         $request = $this->createRequest(['path' => '/foo']);
 
-        $response = $client->findRedirect($request);
+        $response = $client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
@@ -60,13 +64,13 @@ class ClientTest extends TestCase
     {
         $request = $this->createRequest(['path' => '/foo']);
 
-        $response = $this->client->findRedirect($request);
+        $response = $this->client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
         $this->assertSame('/bar', $response->getLocation());
 
-        $response = $this->client->findRedirect($request);
+        $response = $this->client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
@@ -77,7 +81,7 @@ class ClientTest extends TestCase
     {
         $request = $this->createRequest(['path' => '/hello']);
 
-        $response = $this->client->findRedirect($request);
+        $response = $this->client->request(new MatchCommand($request));
 
         $this->assertNull($response);
     }
@@ -90,7 +94,7 @@ class ClientTest extends TestCase
 
         $request = $this->createRequest();
 
-        $response = $client->findRedirect($request);
+        $response = $client->request(new MatchCommand($request));
 
         $this->assertNull($response);
     }
@@ -107,7 +111,7 @@ class ClientTest extends TestCase
 
         $request = $this->createRequest();
 
-        $client->findRedirect($request);
+        $client->request(new MatchCommand($request));
     }
 
     public function testLogRedirection()
@@ -115,19 +119,7 @@ class ClientTest extends TestCase
         $request = $this->createRequest();
         $response = new Response();
 
-        $this->assertTrue($this->client->log($request, $response));
-    }
-
-    public function testLogRedirectionWhenAgentDown()
-    {
-        $client = new Client([
-            'host1' => 'tcp://unknown-host:80',
-        ]);
-
-        $request = $this->createRequest();
-        $response = new Response();
-
-        $this->assertFalse($client->log($request, $response));
+        $this->assertNull($this->client->request(new LogCommand($request, $response)));
     }
 
     /**
@@ -143,7 +135,7 @@ class ClientTest extends TestCase
         $request = $this->createRequest();
         $response = new Response();
 
-        $client->log($request, $response);
+        $client->request(new LogCommand($request, $response));
     }
 
     public function testCanFindWorkingHostInMultipleHostsArray()
@@ -155,7 +147,7 @@ class ClientTest extends TestCase
         ]);
         $request = $this->createRequest(['path' => '/foo']);
 
-        $response = $client->findRedirect($request);
+        $response = $client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
@@ -173,7 +165,7 @@ class ClientTest extends TestCase
         ]);
         $request = $this->createRequest(['path' => '/foo']);
 
-        $response = $client->findRedirect($request);
+        $response = $client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(301, $response->getStatusCode());
@@ -181,7 +173,7 @@ class ClientTest extends TestCase
 
         $agent->stop();
 
-        $response = $client->findRedirect($request);
+        $response = $client->request(new MatchCommand($request));
 
         $this->assertNull($response);
     }
@@ -199,7 +191,7 @@ class ClientTest extends TestCase
     {
         $request = $this->createRequest(['path' => '/garply']);
 
-        $response = $this->client->findRedirect($request);
+        $response = $this->client->request(new MatchCommand($request));
 
         $this->assertInstanceOf(Response::class, $response);
         $this->assertSame(410, $response->getStatusCode());

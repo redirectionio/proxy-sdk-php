@@ -58,6 +58,10 @@ class MatchCommand implements CommandInterface
             $location = $json['location'];
         }
 
+        if ((int) $json['status_code'] === 0) {
+            return null;
+        }
+
         return new Response((int) $json['status_code'], $ruleId, $location);
     }
 

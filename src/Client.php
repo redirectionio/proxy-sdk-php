@@ -182,7 +182,30 @@ class Client
 
     private function doGet($connection)
     {
-        return fgets($connection);
+        $buffer = '';
+
+        while (true) {
+            if (feof($connection)) {
+                return false;
+            }
+
+            $char = fread($connection, 1);
+
+            if ($char === false) {
+                return false;
+            }
+
+            // On timeout char is empty
+            if ($char === '') {
+                return false;
+            }
+
+            if ($char === "\0") {
+                return $buffer;
+            }
+
+            $buffer .= $char;
+        }
     }
 
     private function box($method, $defaultReturnValue = null, array $args = [])

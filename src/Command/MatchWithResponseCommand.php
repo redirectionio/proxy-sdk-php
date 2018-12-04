@@ -63,6 +63,10 @@ class MatchWithResponseCommand implements CommandInterface
             $matchOnResponseStatus = $json['match_on_response_status'];
         }
 
+        if ((int) $json['status_code'] === 0) {
+            return null;
+        }
+
         return new Response((int) $json['status_code'], $ruleId, $location, $matchOnResponseStatus);
     }
 

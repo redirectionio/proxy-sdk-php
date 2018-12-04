@@ -4,6 +4,8 @@ namespace RedirectionIO\Client\Sdk;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RedirectionIO\Client\Sdk\Command\LogCommand;
+use RedirectionIO\Client\Sdk\Command\MatchCommand;
 use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
 use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
 use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
@@ -41,94 +43,46 @@ class Client
         $this->logger = $logger ?: new NullLogger();
     }
 
+    /**
+     * @deprecated findRedirect() is deprecated since version 0.2 and will be removed in 0.3. Use request(new MatchCommand()) instead.
+     */
     public function findRedirect(Request $request)
     {
-        $requestContext = [
-            'host' => $request->getHost(),
-            'request_uri' => $request->getPath(),
-            'user_agent' => $request->getUserAgent(),
-            'referer' => $request->getReferer(),
-            'scheme' => $request->getScheme(),
-            'use_json' => true,
-        ];
+        @trigger_error('findRedirect() is deprecated since version 0.2 and will be removed in 0.3. Use request(new MatchCommand()) instead.', E_USER_DEPRECATED);
 
-        try {
-            $agentResponse = $this->request('GET', $requestContext);
-        } catch (ExceptionInterface $exception) {
-            if ($this->debug) {
-                throw $exception;
-            }
-
-            return null;
-        }
-
-        if (0 === \strlen($agentResponse)) {
-            return null;
-        }
-
-        $json = json_decode($agentResponse, true);
-
-        if (null === $json) {
-            if ($this->debug) {
-                throw new \ErrorException(sprintf('Impossible to decode the JSON (%s). Content: "%s"', json_last_error_msg(), $agentResponse));
-            }
-
-            return null;
-        }
-
-        $ruleId = null;
-        $location = null;
-
-        if (isset($json['matched_rule'], $json['matched_rule']['id'])) {
-            $ruleId = $json['matched_rule']['id'];
-        }
-
-        if (isset($json['location'])) {
-            $location = $json['location'];
-        }
-
-        return new Response((int) $json['status_code'], $ruleId, $location);
+        return $this->request(new MatchCommand($request));
     }
 
+    /**
+     * @deprecated log() is deprecated since version 0.2 and will be removed in 0.3. Use request(new LogCommand()) instead.
+     */
     public function log(Request $request, Response $response)
     {
-        $responseContext = [
-            'status_code' => $response->getStatusCode(),
-            'host' => $request->getHost(),
-            'request_uri' => $request->getPath(),
-            'user_agent' => $request->getUserAgent(),
-            'referer' => $request->getReferer(),
-            'scheme' => $request->getScheme(),
-            'use_json' => true,
-        ];
+        @trigger_error('log() is deprecated since version 0.2 and will be removed in 0.3. Use request(new LogCommand()) instead.', E_USER_DEPRECATED);
 
-        if ($response->getLocation()) {
-            $responseContext['target'] = $response->getLocation();
-        }
+        return $this->request(new LogCommand($request, $response));
+    }
 
-        if ($response->getRuleId()) {
-            $responseContext['rule_id'] = $response->getRuleId();
-        }
-
+    public function request(Command\CommandInterface $command)
+    {
         try {
-            return (bool) $this->request('LOG', $responseContext);
+            return $this->doRequest($command);
         } catch (ExceptionInterface $exception) {
             if ($this->debug) {
                 throw $exception;
             }
 
-            return false;
+            return null;
         }
     }
 
-    private function request($command, $context)
+    private function doRequest(Command\CommandInterface $command)
     {
         $connection = $this->getConnection();
 
-        $content = $command.' '.json_encode($context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n";
-        $sent = $this->box('doSend', false, [$connection, $content]);
+        $toSend = $command->getName() . "\0" . $command->getRequest() . "\0";
+        $sent = $this->box('doSend', false, [$connection, $toSend]);
 
-        // if the pipe is broken, `fwrite` will throw a Notice
         if (false === $sent) {
             $this->logger->debug('Impossible to send content to the connection.', [
                 'options' => $this->connections[$this->currentConnectionName],
@@ -137,7 +91,11 @@ class Client
             --$this->connections[$this->currentConnectionName]['retries'];
             $this->currentConnection = null;
 
-            return $this->request($command, $context);
+            return $this->doRequest($command);
+        }
+
+        if (!$command->hasResponse()) {
+            return null;
         }
 
         $received = $this->box('doGet', false, [$connection]);
@@ -151,10 +109,10 @@ class Client
             --$this->connections[$this->currentConnectionName]['retries'];
             $this->currentConnection = null;
 
-            return $this->request($command, $context);
+            return $this->doRequest($command);
         }
 
-        return trim($received);
+        return $command->parseResponse(trim($received));
     }
 
     private function getConnection()

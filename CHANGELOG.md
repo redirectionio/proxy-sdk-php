@@ -1,5 +1,12 @@
 # ChangeLog
 
+## 0.2.0
+
+- Add match on response status code command
+- Deprecate findRedirect and log methods on the client, use request with Command instead
+- Introduce concept of commands and a new public method to send those command on redirection io agent
+- Update protocol to match with the new one introduced in agent 1.3.0
+
 ## 0.1.4
 
 - Fix fwrite reliability

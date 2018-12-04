@@ -2,6 +2,8 @@
 
 ## 0.2.0
 
+**This version only works with agent version 1.3.0 and up**
+
 - Add match on response status code command
 - Deprecate findRedirect and log methods on the client, use request with Command instead
 - Introduce concept of commands and a new public method to send those command on redirection io agent

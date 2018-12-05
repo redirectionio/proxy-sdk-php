@@ -60,7 +60,9 @@ class Client
     {
         @trigger_error('log() is deprecated since version 0.2 and will be removed in 0.3. Use request(new LogCommand()) instead.', E_USER_DEPRECATED);
 
-        return $this->request(new LogCommand($request, $response));
+        $this->request(new LogCommand($request, $response));
+
+        return true;
     }
 
     public function request(Command\CommandInterface $command)
@@ -90,6 +92,7 @@ class Client
 
             --$this->connections[$this->currentConnectionName]['retries'];
             $this->currentConnection = null;
+            $this->box('disconnect', null, [$connection]);
 
             return $this->doRequest($command);
         }
@@ -108,6 +111,7 @@ class Client
 
             --$this->connections[$this->currentConnectionName]['retries'];
             $this->currentConnection = null;
+            $this->box('disconnect', null, [$connection]);
 
             return $this->doRequest($command);
         }
@@ -173,6 +177,11 @@ class Client
             1, // This value is not used but it should not be 0
             STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT
         );
+    }
+
+    private function disconnect($connection)
+    {
+        fclose($connection);
     }
 
     private function doSend($connection, $content)

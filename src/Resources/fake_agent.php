@@ -62,16 +62,16 @@ while (true) {
 
             $char = fread($client, 1);
 
-            if ($char === false) {
+            if (false === $char) {
                 return false;
             }
 
             // On timeout char is empty
-            if ($char === '') {
+            if ('' === $char) {
                 return false;
             }
 
-            if ($char === "\0") {
+            if ("\0" === $char) {
                 return $buffer;
             }
 
@@ -81,14 +81,14 @@ while (true) {
 
     $cmdName = $readPart($client);
 
-    if ($cmdName === false) {
+    if (false === $cmdName) {
         fclose($client);
         continue;
     }
 
     $cmdData = $readPart($client);
 
-    if ($cmdData === false) {
+    if (false === $cmdData) {
         fclose($client);
         continue;
     }
@@ -131,7 +131,7 @@ function findRedirect($client, $cmdData, $matcher)
         }
     }
 
-    $writed = fwrite($client, $res . "\0", strlen($res) + 1);
+    $writed = fwrite($client, $res."\0", strlen($res) + 1);
 
     var_dump($writed);
 }

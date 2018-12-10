@@ -82,7 +82,7 @@ class Client
     {
         $connection = $this->getConnection();
 
-        $toSend = $command->getName() . "\0" . $command->getRequest() . "\0";
+        $toSend = $command->getName()."\0".$command->getRequest()."\0";
         $sent = $this->box('doSend', false, [$connection, $toSend]);
 
         if (false === $sent) {
@@ -200,16 +200,16 @@ class Client
 
             $char = fread($connection, 1);
 
-            if ($char === false) {
+            if (false === $char) {
                 return false;
             }
 
             // On timeout char is empty
-            if ($char === '') {
+            if ('' === $char) {
                 return false;
             }
 
-            if ($char === "\0") {
+            if ("\0" === $char) {
                 return $buffer;
             }
 

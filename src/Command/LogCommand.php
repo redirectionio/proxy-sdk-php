@@ -6,7 +6,7 @@ use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
 /**
- * Log a request and a response to be used in analysis on redirection io manager
+ * Log a request and a response to be used in analysis on redirection io manager.
  */
 class LogCommand implements CommandInterface
 {

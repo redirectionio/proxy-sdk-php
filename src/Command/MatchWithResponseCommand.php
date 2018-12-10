@@ -6,7 +6,7 @@ use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
 /**
- * Find matching rule for a specific request
+ * Find matching rule for a specific request.
  */
 class MatchWithResponseCommand implements CommandInterface
 {
@@ -63,11 +63,10 @@ class MatchWithResponseCommand implements CommandInterface
             $matchOnResponseStatus = $json['match_on_response_status'];
         }
 
-        if ((int) $json['status_code'] === 0) {
+        if (0 === (int) $json['status_code']) {
             return null;
         }
 
         return new Response((int) $json['status_code'], $ruleId, $location, $matchOnResponseStatus);
     }
-
 }

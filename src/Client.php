@@ -170,13 +170,28 @@ class Client
 
     private function doConnect($options)
     {
-        return stream_socket_client(
+        if (\PHP_VERSION_ID >= 70100) {
+            $context = stream_context_create([
+                'socket' => [
+                    'tcp_nodelay' => true,
+                ],
+            ]);
+        } else {
+            $context = stream_context_create();
+        }
+
+        $connection = stream_socket_client(
             $options['remote_socket'],
             $errNo,
             $errMsg,
             1, // This value is not used but it should not be 0
-            STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT
+            STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT,
+            $context
         );
+
+        stream_set_blocking($connection, 1);
+
+        return $connection;
     }
 
     private function disconnect($connection)

@@ -17,7 +17,7 @@ class Request
      * @param string $referer   Referer header of the request
      * @param string $scheme    "http" or "https"
      */
-    public function __construct($host, $path, $userAgent, $referer = '', $scheme = 'http')
+    public function __construct($host, $path, $userAgent = '', $referer = '', $scheme = 'http')
     {
         $this->host = $host;
         $this->path = $path;

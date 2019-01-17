@@ -48,7 +48,7 @@ Before starting, you need to instantiate a new Client.
 ```php
 use RedirectionIO\Client\Sdk\Client;
 
-$client = new Client(array $connections, int $timeout = 1000000, bool $debug = false, LoggerInterface $logger = null);
+$client = new Client(array $connections, int $timeout = 10000, bool $debug = false, LoggerInterface $logger = null);
 ```
 
 Parameters:
@@ -56,7 +56,7 @@ Parameters:
 - `array $connections` array of connection(s) parameters to the Agent(s)
     ```php
     $connections = [
-        'connection_tcp' => 'tcp://127.0.0.1:20301',
+        'connection_tcp' => 'tcp://127.0.0.1:10301',
         'connection_unix' => 'unix:///var/run/redirectionio_agent.sock',
     ];
 

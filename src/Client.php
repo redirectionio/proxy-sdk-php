@@ -193,6 +193,8 @@ class Client
     {
         $buffer = '';
 
+        $retries = 10;
+
         while (true) {
             if (feof($connection)) {
                 return false;
@@ -204,9 +206,15 @@ class Client
                 return false;
             }
 
-            // On timeout char is empty
+            // On timeout char is empty. But it's also possible PHP did not
+            // "see" the data yet, so let's retry few times
             if ('' === $char) {
-                return false;
+                if (!$retries) {
+                    return false;
+                }
+                --$retries;
+
+                continue;
             }
 
             if ("\0" === $char) {

@@ -117,6 +117,11 @@ class Client
             return $this->doRequest($command);
         }
 
+        if (feof($connection)) {
+            $this->box('disconnect', null, [$connection]);
+            $this->currentConnection = null;
+        }
+
         return $command->parseResponse(trim($received));
     }
 

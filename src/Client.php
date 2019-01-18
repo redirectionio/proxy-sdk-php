@@ -9,6 +9,7 @@ use RedirectionIO\Client\Sdk\Command\MatchCommand;
 use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
 use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
 use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
+use RedirectionIO\Client\Sdk\Exception\TimeoutException;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
@@ -189,7 +190,7 @@ class Client
             $context
         );
 
-        stream_set_blocking($connection, 1);
+        stream_set_blocking($connection, 0);
 
         return $connection;
     }
@@ -208,35 +209,32 @@ class Client
     {
         $buffer = '';
 
-        $retries = 10;
-
         while (true) {
             if (feof($connection)) {
                 return false;
             }
 
-            $char = fread($connection, 1);
+            $reads = $write = $except = [];
+            $reads[] = $connection;
+            $modified = stream_select($reads, $write, $except, 0, $this->timeout);
 
-            if (false === $char) {
+            // Timeout
+            if ($modified === 0) {
+                throw new TimeoutException('Timeout reached when trying to read stream (' . $this->timeout . 'ms)');
+            }
+
+            // Error
+            if ($modified === false) {
                 return false;
             }
 
-            // On timeout char is empty. But it's also possible PHP did not
-            // "see" the data yet, so let's retry few times
-            if ('' === $char) {
-                if (!$retries) {
-                    return false;
-                }
-                --$retries;
+            $content = stream_get_contents($connection);
+            $buffer .= $content;
+            $endingPos = strpos($buffer, "\0");
 
-                continue;
+            if (false !== $endingPos) {
+                return substr($buffer, 0, $endingPos);
             }
-
-            if ("\0" === $char) {
-                return $buffer;
-            }
-
-            $buffer .= $char;
         }
     }
 

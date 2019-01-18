@@ -224,12 +224,12 @@ class Client
             $modified = stream_select($reads, $write, $except, 0, $this->timeout);
 
             // Timeout
-            if ($modified === 0) {
-                throw new TimeoutException('Timeout reached when trying to read stream (' . $this->timeout . 'ms)');
+            if (0 === $modified) {
+                throw new TimeoutException('Timeout reached when trying to read stream ('.$this->timeout.'ms)');
             }
 
             // Error
-            if ($modified === false) {
+            if (false === $modified) {
                 return false;
             }
 

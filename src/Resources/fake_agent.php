@@ -79,29 +79,31 @@ while (true) {
         }
     };
 
-    $cmdName = $readPart($client);
+    while (true) {
+        $cmdName = $readPart($client);
 
-    if (false === $cmdName) {
-        fclose($client);
-        continue;
-    }
+        if (false === $cmdName) {
+            fclose($client);
+            break;
+        }
 
-    $cmdData = $readPart($client);
+        $cmdData = $readPart($client);
 
-    if (false === $cmdData) {
-        fclose($client);
-        continue;
-    }
+        if (false === $cmdData) {
+            fclose($client);
+            break;
+        }
 
-    if ('MATCH' === $cmdName) {
-        findRedirect($client, $cmdData, $matcher);
-    } elseif ('LOG' === $cmdName) {
-        logRedirect($client);
-    } else {
-        echo "Unknown command: '$cmdName'\n";
-        fclose($client);
+        if ('MATCH' === $cmdName) {
+            findRedirect($client, $cmdData, $matcher);
+        } elseif ('LOG' === $cmdName) {
+            logRedirect($client);
+        } else {
+            echo "Unknown command: '$cmdName'\n";
+            fclose($client);
 
-        continue;
+            break;
+        }
     }
 
     fclose($client);

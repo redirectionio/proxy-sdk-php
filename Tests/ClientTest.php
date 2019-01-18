@@ -2,6 +2,8 @@
 
 namespace RedirectionIO\Client\Sdk\Tests;
 
+use Monolog\Handler\ErrorLogHandler;
+use Monolog\Logger;
 use PHPUnit\Framework\TestCase;
 use RedirectionIO\Client\Sdk\Client;
 use RedirectionIO\Client\Sdk\Command\LogCommand;
@@ -29,9 +31,12 @@ class ClientTest extends TestCase
 
     public function setUp()
     {
+        $logger = new Logger('SDK Tests');
+        $logger->pushHandler(new ErrorLogHandler());
+
         $this->client = new Client([
             'host1' => $this->connection,
-        ], 10000, true);
+        ], 10000, true, $logger);
     }
 
     public function testFindRedirectWhenExist()

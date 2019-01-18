@@ -24,7 +24,8 @@
     "require-dev": {
         "friendsofphp/php-cs-fixer": "^2.10",
         "symfony/phpunit-bridge": "^4.1",
-        "symfony/process": "^3.4"
+        "symfony/process": "^3.4",
+        "monolog/monolog": "^1.24"
     },
     "autoload": {
         "psr-4": {
@@ -37,7 +38,7 @@
     "scripts": {
         "test": "vendor/bin/simple-phpunit",
         "cs-fix": "vendor/bin/php-cs-fixer fix --config=.php_cs --dry-run --diff",
-        "code-coverage": "vendor/bin/simple-phpunit --coverage-text --coverage-clover=coverage/coverage.xml --coverage-html=coverage/html"
+        "code-coverage": "vendor/bin/simple-phpunit --verbose --debug --coverage-text --coverage-clover=coverage/coverage.xml --coverage-html=coverage/html"
     },
     "extra": {
         "branch-alias": {

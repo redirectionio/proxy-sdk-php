@@ -7,6 +7,7 @@ use Psr\Log\NullLogger;
 use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
 use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
 use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
+use RedirectionIO\Client\Sdk\Exception\TimeoutException;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
@@ -224,7 +225,35 @@ class Client
 
     private function doGet($connection)
     {
-        return fgets($connection);
+        $buffer = '';
+
+        while (true) {
+            if (feof($connection)) {
+                return false;
+            }
+
+            $reads = $write = $except = [];
+            $reads[] = $connection;
+            $modified = stream_select($reads, $write, $except, 0, $this->timeout);
+
+            // Timeout
+            if (0 === $modified) {
+                throw new TimeoutException('Timeout reached when trying to read stream ('.$this->timeout.'ms)');
+            }
+
+            // Error
+            if (false === $modified) {
+                return false;
+            }
+
+            $content = stream_get_contents($connection);
+            $buffer .= $content;
+            $endingPos = strpos($buffer, "\0");
+
+            if (false !== $endingPos) {
+                return substr($buffer, 0, $endingPos);
+            }
+        }
     }
 
     private function box($method, $defaultReturnValue = null, array $args = [])

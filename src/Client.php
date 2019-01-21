@@ -7,6 +7,7 @@ use Psr\Log\NullLogger;
 use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
 use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
 use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
+use RedirectionIO\Client\Sdk\Exception\TimeoutException;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
@@ -208,13 +209,28 @@ class Client
 
     private function doConnect($options)
     {
-        return stream_socket_client(
+        if (\PHP_VERSION_ID >= 70100) {
+            $context = stream_context_create([
+                'socket' => [
+                    'tcp_nodelay' => true,
+                ],
+            ]);
+        } else {
+            $context = stream_context_create();
+        }
+
+        $connection = stream_socket_client(
             $options['remote_socket'],
             $errNo,
             $errMsg,
             1, // This value is not used but it should not be 0
-            STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT
+            STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT,
+            $context
         );
+
+        stream_set_blocking($connection, 0);
+
+        return $connection;
     }
 
     private function doSend($connection, $content)
@@ -224,7 +240,35 @@ class Client
 
     private function doGet($connection)
     {
-        return fgets($connection);
+        $buffer = '';
+
+        while (true) {
+            if (feof($connection)) {
+                return false;
+            }
+
+            $reads = $write = $except = [];
+            $reads[] = $connection;
+            $modified = stream_select($reads, $write, $except, 0, $this->timeout);
+
+            // Timeout
+            if (0 === $modified) {
+                throw new TimeoutException('Timeout reached when trying to read stream ('.$this->timeout.'ms)');
+            }
+
+            // Error
+            if (false === $modified) {
+                return false;
+            }
+
+            $content = stream_get_contents($connection);
+            $buffer .= $content;
+            $endingPos = strpos($buffer, "\n");
+
+            if (false !== $endingPos) {
+                return substr($buffer, 0, $endingPos);
+            }
+        }
     }
 
     private function box($method, $defaultReturnValue = null, array $args = [])

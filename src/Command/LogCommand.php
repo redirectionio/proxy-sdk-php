@@ -31,6 +31,7 @@ class LogCommand implements CommandInterface
             'status_code' => $this->response->getStatusCode(),
             'host' => $this->request->getHost(),
             'request_uri' => $this->request->getPath(),
+            'method' => $this->request->getMethod(),
             'user_agent' => $this->request->getUserAgent(),
             'referer' => $this->request->getReferer(),
             'scheme' => $this->request->getScheme(),

@@ -35,6 +35,7 @@ class LogCommand implements CommandInterface
             'user_agent' => $this->request->getUserAgent(),
             'referer' => $this->request->getReferer(),
             'scheme' => $this->request->getScheme(),
+            'proxy' => 'php-sdk-redirectionio:dev',
             'use_json' => true,
         ];
 

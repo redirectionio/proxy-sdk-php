@@ -2,6 +2,7 @@
 
 namespace RedirectionIO\Client\Sdk\Command;
 
+use RedirectionIO\Client\Sdk\Client;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
 use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
@@ -35,7 +36,7 @@ class LogCommand implements CommandInterface
             'user_agent' => $this->request->getUserAgent(),
             'referer' => $this->request->getReferer(),
             'scheme' => $this->request->getScheme(),
-            'proxy' => 'php-sdk-redirectionio:dev',
+            'proxy' => 'php-sdk-redirectionio:'.Client::VERSION,
             'use_json' => true,
         ];
 

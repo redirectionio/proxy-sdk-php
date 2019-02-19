@@ -15,6 +15,8 @@ use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
 class Client
 {
+    const VERSION = '0.2.1';
+
     private $connections;
     private $timeout;
     private $debug;

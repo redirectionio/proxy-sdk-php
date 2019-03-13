@@ -95,7 +95,7 @@ while (true) {
             break;
         }
 
-        if ('MATCH' === $cmdName) {
+        if ('MATCH' === $cmdName || 'MATCH_WITH_RESPONSE' === $cmdName) {
             findRedirect($client, $cmdData, $matcher, $projectKey);
         } elseif ('LOG' === $cmdName) {
             logRedirect($client);

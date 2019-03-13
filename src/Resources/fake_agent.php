@@ -13,8 +13,9 @@
  */
 set_time_limit(0);
 
-$socket_type = isset($_SERVER['RIO_SOCKET_TYPE']) ? $_SERVER['RIO_SOCKET_TYPE'] : 'AF_INET';
-$socket_path = isset($_SERVER['RIO_SOCKET_PATH']) ? $_SERVER['RIO_SOCKET_PATH'] : sys_get_temp_dir().'/fake_agent.sock';
+$projectKey = 'szio2389-bfdz-51e8-8468-02dcop129501:ep6a4805-eo6z-dzo6-aeb0-8c1lbmo40242';
+$socketType = isset($_SERVER['RIO_SOCKET_TYPE']) ? $_SERVER['RIO_SOCKET_TYPE'] : 'AF_INET';
+$socketPath = isset($_SERVER['RIO_SOCKET_PATH']) ? $_SERVER['RIO_SOCKET_PATH'] : sys_get_temp_dir().'/fake_agent.sock';
 $ip = isset($_SERVER['RIO_HOST']) ? $_SERVER['RIO_HOST'] : 'localhost';
 $port = isset($_SERVER['RIO_PORT']) ? $_SERVER['RIO_PORT'] : 3100;
 $timeout = 1000000; // seconds
@@ -26,19 +27,19 @@ $matcher = [
     ['/garply', '', 410],
 ];
 
-switch ($socket_type) {
+switch ($socketType) {
     case 'AF_INET':
         $local_socket = "tcp://$ip:$port";
         break;
     case 'AF_UNIX':
-        $local_socket = "unix://$socket_path";
+        $local_socket = "unix://$socketPath";
         break;
     default:
         echo 'Please set a `RIO_SOCKET_TYPE` env var to `AF_INET` or `AF_UNIX`';
         exit(1);
 }
 
-@unlink($socket_path);
+@unlink($socketPath);
 if (!$socket = stream_socket_server($local_socket, $errNo, $errMsg)) {
     echo "Couldn't create stream_socket_server: [$errNo] $errMsg";
     exit(1);
@@ -95,7 +96,7 @@ while (true) {
         }
 
         if ('MATCH' === $cmdName) {
-            findRedirect($client, $cmdData, $matcher);
+            findRedirect($client, $cmdData, $matcher, $projectKey);
         } elseif ('LOG' === $cmdName) {
             logRedirect($client);
         } else {
@@ -111,7 +112,7 @@ while (true) {
 
 fclose($socket);
 
-function findRedirect($client, $cmdData, $matcher)
+function findRedirect($client, $cmdData, $matcher, $projectKey)
 {
     $req = json_decode($cmdData, true);
 
@@ -123,7 +124,7 @@ function findRedirect($client, $cmdData, $matcher)
     ]);
 
     for ($i = 0; $i < $nbMatchers; ++$i) {
-        if ($matcher[$i][0] === $req['request_uri']) {
+        if ($matcher[$i][0] === $req['request_uri'] && $projectKey === $req['project_id']) {
             $res = json_encode([
                 'status_code' => $matcher[$i][2],
                 'location' => $matcher[$i][1],
@@ -140,5 +141,4 @@ function findRedirect($client, $cmdData, $matcher)
 
 function logRedirect($client)
 {
-    //fwrite($client, 1, 1);
 }

@@ -11,4 +11,6 @@ interface CommandInterface
     public function hasResponse();
 
     public function parseResponse($response);
+
+    public function setProjectKey(string $projectKey);
 }

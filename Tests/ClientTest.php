@@ -19,9 +19,8 @@ use Symfony\Component\Process\Process;
  */
 class ClientTest extends TestCase
 {
+    private $projectKey = 'szio2389-bfdz-51e8-8468-02dcop129501:ep6a4805-eo6z-dzo6-aeb0-8c1lbmo40242';
     private $connection = 'tcp://localhost:3100';
-
-    /** @var Client */
     private $client;
 
     public static function setUpBeforeClass()
@@ -34,9 +33,7 @@ class ClientTest extends TestCase
         $logger = new Logger('SDK Tests');
         $logger->pushHandler(new ErrorLogHandler());
 
-        $this->client = new Client([
-            'host1' => $this->connection,
-        ], 10000, true, $logger);
+        $this->client = new Client($this->projectKey, ['host1' => $this->connection], 10000, true, $logger);
     }
 
     public function testFindRedirectWhenExist()
@@ -50,11 +47,22 @@ class ClientTest extends TestCase
         $this->assertSame('/bar', $response->getLocation());
     }
 
+    public function testCannotFindRedirectWithWrongProjectKey()
+    {
+        $client = new Client('wrong-key', ['host1' => $this->connection]);
+
+        $request = $this->createRequest(['path' => '/foo']);
+
+        $response = $client->request(new MatchCommand($request));
+
+        $this->assertNull($response);
+    }
+
     public function testFindRedirectWhenExistUsingUnixSocket()
     {
         $agent = static::startAgent(['socket_type' => 'AF_UNIX']);
 
-        $client = new Client(['host1' => 'unix://'.sys_get_temp_dir().'/fake_agent.sock']);
+        $client = new Client($this->projectKey, ['host1' => 'unix://'.sys_get_temp_dir().'/fake_agent.sock']);
 
         $request = $this->createRequest(['path' => '/foo']);
 
@@ -93,9 +101,7 @@ class ClientTest extends TestCase
 
     public function testFindRedirectWhenAgentDown()
     {
-        $client = new Client([
-            'host1' => 'tcp://unknown-host:80',
-        ]);
+        $client = new Client($this->projectKey, ['host1' => 'tcp://unknown-host:80']);
 
         $request = $this->createRequest();
 
@@ -110,9 +116,7 @@ class ClientTest extends TestCase
      */
     public function testFindRedirectWhenAgentDownAndDebug()
     {
-        $client = new Client([
-            'host1' => 'tcp://unknown-host:80',
-        ], 1000000, true);
+        $client = new Client($this->projectKey, ['host1' => 'tcp://unknown-host:80'], 1000000, true);
 
         $request = $this->createRequest();
 
@@ -133,9 +137,7 @@ class ClientTest extends TestCase
      */
     public function testLogRedirectionWhenAgentDownAndDebug()
     {
-        $client = new Client([
-            'host1' => 'tcp://unknown-host:80',
-        ], 1000000, true);
+        $client = new Client($this->projectKey, ['host1' => 'tcp://unknown-host:80'], 1000000, true);
 
         $request = $this->createRequest();
         $response = new Response();
@@ -145,11 +147,14 @@ class ClientTest extends TestCase
 
     public function testCanFindWorkingHostInMultipleHostsArray()
     {
-        $client = new Client([
-            'host1' => 'tcp://unknown-host:80',
-            'host2' => 'tcp://unknown-host:81',
-            'host3' => $this->connection,
-        ]);
+        $client = new Client(
+            $this->projectKey,
+            [
+                'host1' => 'tcp://unknown-host:80',
+                'host2' => 'tcp://unknown-host:81',
+                'host3' => $this->connection,
+            ]
+        );
         $request = $this->createRequest(['path' => '/foo']);
 
         $response = $client->request(new MatchCommand($request));
@@ -163,11 +168,14 @@ class ClientTest extends TestCase
     {
         $agent = static::startAgent(['port' => 3101]);
 
-        $client = new Client([
-            'host1' => 'tcp://unknown-host:80',
-            'host2' => 'tcp://unknown-host:81',
-            'host3' => 'tcp://localhost:3101',
-        ]);
+        $client = new Client(
+            $this->projectKey,
+            [
+                'host1' => 'tcp://unknown-host:80',
+                'host2' => 'tcp://unknown-host:81',
+                'host3' => 'tcp://localhost:3101',
+            ]
+        );
         $request = $this->createRequest(['path' => '/foo']);
 
         $response = $client->request(new MatchCommand($request));
@@ -189,7 +197,7 @@ class ClientTest extends TestCase
      */
     public function testCannotAllowInstantiationWithEmptyConnectionsOptions()
     {
-        $client = new Client([]);
+        $client = new Client($this->projectKey, []);
     }
 
     public function testFind410ResponseWhenExist()

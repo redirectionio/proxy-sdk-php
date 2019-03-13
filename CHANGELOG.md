@@ -1,5 +1,13 @@
 # ChangeLog
 
+## 1.0.0
+
+- Update Client, instantiate it now required two parameters: `$projectKey` and `$connections`
+    ```php
+    RedirectionIO\Client\Sdk\Client($projectKey, array $connections);
+    ```
+- Remove findRedirect and log methods on the client, use request with Command instead
+
 ## 0.2.0
 
 **This version only works with agent version 1.3.0 and up**

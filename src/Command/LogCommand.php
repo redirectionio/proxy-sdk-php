@@ -9,10 +9,9 @@ use RedirectionIO\Client\Sdk\HttpMessage\Response;
 /**
  * Log a request and a response to be used in analysis on redirection io manager.
  */
-class LogCommand implements CommandInterface
+class LogCommand extends Command
 {
     private $request;
-
     private $response;
 
     public function __construct(Request $request, Response $response)
@@ -29,6 +28,7 @@ class LogCommand implements CommandInterface
     public function getRequest()
     {
         $data = [
+            'project_id' => $this->projectKey,
             'status_code' => $this->response->getStatusCode(),
             'host' => $this->request->getHost(),
             'request_uri' => $this->request->getPath(),

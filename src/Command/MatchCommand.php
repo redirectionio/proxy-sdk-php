@@ -8,7 +8,7 @@ use RedirectionIO\Client\Sdk\HttpMessage\Response;
 /**
  * Find matching rule for a specific request, does not match if the rule should be run on a response status code.
  */
-class MatchCommand implements CommandInterface
+class MatchCommand extends Command
 {
     private $request;
 
@@ -25,6 +25,7 @@ class MatchCommand implements CommandInterface
     public function getRequest()
     {
         return json_encode([
+            'project_id' => $this->projectKey,
             'host' => $this->request->getHost(),
             'request_uri' => $this->request->getPath(),
             'user_agent' => $this->request->getUserAgent(),

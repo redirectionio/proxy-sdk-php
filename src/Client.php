@@ -4,19 +4,17 @@ namespace RedirectionIO\Client\Sdk;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use RedirectionIO\Client\Sdk\Command\LogCommand;
-use RedirectionIO\Client\Sdk\Command\MatchCommand;
 use RedirectionIO\Client\Sdk\Exception\AgentNotFoundException;
 use RedirectionIO\Client\Sdk\Exception\BadConfigurationException;
 use RedirectionIO\Client\Sdk\Exception\ExceptionInterface;
 use RedirectionIO\Client\Sdk\Exception\TimeoutException;
 use RedirectionIO\Client\Sdk\HttpMessage\Request;
-use RedirectionIO\Client\Sdk\HttpMessage\Response;
 
 class Client
 {
-    const VERSION = '0.2.1';
+    const VERSION = '1.0.0';
 
+    private $projectKey;
     private $connections;
     private $timeout;
     private $debug;
@@ -28,8 +26,12 @@ class Client
      * @param int  $timeout
      * @param bool $debug
      */
-    public function __construct(array $connections, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
+    public function __construct(string $projectKey, array $connections, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
     {
+        if (!$projectKey) {
+            throw new BadConfigurationException('A project key is required.');
+        }
+
         if (!$connections) {
             throw new BadConfigurationException('At least one connection is required.');
         }
@@ -41,35 +43,16 @@ class Client
             ];
         }
 
+        $this->projectKey = $projectKey;
         $this->timeout = $timeout;
         $this->debug = $debug;
         $this->logger = $logger ?: new NullLogger();
     }
 
-    /**
-     * @deprecated findRedirect() is deprecated since version 0.2 and will be removed in 0.3. Use request(new MatchCommand()) instead.
-     */
-    public function findRedirect(Request $request)
-    {
-        @trigger_error('findRedirect() is deprecated since version 0.2 and will be removed in 0.3. Use request(new MatchCommand()) instead.', E_USER_DEPRECATED);
-
-        return $this->request(new MatchCommand($request));
-    }
-
-    /**
-     * @deprecated log() is deprecated since version 0.2 and will be removed in 0.3. Use request(new LogCommand()) instead.
-     */
-    public function log(Request $request, Response $response)
-    {
-        @trigger_error('log() is deprecated since version 0.2 and will be removed in 0.3. Use request(new LogCommand()) instead.', E_USER_DEPRECATED);
-
-        $this->request(new LogCommand($request, $response));
-
-        return true;
-    }
-
     public function request(Command\CommandInterface $command)
     {
+        $command->setProjectKey($this->projectKey);
+
         try {
             return $this->doRequest($command);
         } catch (ExceptionInterface $exception) {

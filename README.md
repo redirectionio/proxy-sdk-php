@@ -8,7 +8,7 @@ efficiently.
 Quick demo (see below for detailed info):
 
 ```php
-$client = new RedirectionIO\Client\Sdk\Client($connections);
+$client = new RedirectionIO\Client\Sdk\Client($projectKey, $connections);
 $request = new RedirectionIO\Client\Sdk\HttpMessage\Request(
     $_SERVER['HTTP_HOST'],
     $_SERVER['REQUEST_URI'],
@@ -20,7 +20,7 @@ $response = $client->request(new RedirectionIO\Client\Sdk\Command\MatchWithRespo
 
 // There are no redirection for this Request
 if (null === $response) {
-    $response = '...' // Handle your request with your application
+    $response = '...'; // Handle your request with your application
 }
 
 $client->request(new RedirectionIO\Client\Sdk\Command\LogCommand($request, $response));
@@ -48,12 +48,16 @@ Before starting, you need to instantiate a new Client.
 ```php
 use RedirectionIO\Client\Sdk\Client;
 
-$client = new Client(array $connections, int $timeout = 10000, bool $debug = false, LoggerInterface $logger = null);
+$client = new Client(string $projectKey, array $connections, int $timeout = 10000, bool $debug = false, LoggerInterface $logger = null);
 ```
 
 Parameters:
 
-- `array $connections` array of connection(s) parameters to the Agent(s)
+- `$projectKey` your project key (can be found in redirection.io dashboard)
+    ```php
+    $projectKey = 'szio2389-bfdz-51e8-8468-02dcop129501:ep6a4805-eo6z-dzo6-aeb0-8c1lbmo40242';
+    ```
+- `$connections` array of connection(s) parameters to the Agent(s)
     ```php
     $connections = [
         'connection_tcp' => 'tcp://127.0.0.1:10301',

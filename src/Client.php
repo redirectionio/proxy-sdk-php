@@ -12,7 +12,7 @@ use RedirectionIO\Client\Sdk\HttpMessage\Request;
 
 class Client
 {
-    const VERSION = '1.0.0';
+    const VERSION = '0.3.0';
 
     private $projectKey;
     private $connections;

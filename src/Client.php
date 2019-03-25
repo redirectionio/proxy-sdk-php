@@ -243,9 +243,9 @@ class Client
                 'args' => $args,
                 'exception' => $exception,
             ]);
+        } finally {
+            restore_error_handler();
         }
-
-        restore_error_handler();
 
         return $returnValue;
     }

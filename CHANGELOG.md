@@ -1,5 +1,13 @@
 # ChangeLog
 
+## 0.1.6
+
+- Always restore the error handler
+
+## 0.1.5
+
+- fix the communication with the agent
+
 ## 0.1.4
 
 - Fix fwrite reliability

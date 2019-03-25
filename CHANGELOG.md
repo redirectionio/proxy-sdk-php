@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.3.1
+
+- Always reset the error handler
+
 ## 0.3.0
 
 - Update Client, instantiate it now required two parameters: `$projectKey` and `$connections`

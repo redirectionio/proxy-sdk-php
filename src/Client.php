@@ -21,12 +21,13 @@ class Client
     private $logger;
     private $currentConnection;
     private $currentConnectionName;
+    private $persist;
 
     /**
      * @param int  $timeout
      * @param bool $debug
      */
-    public function __construct(string $projectKey, array $connections, $timeout = 10000, $debug = false, LoggerInterface $logger = null)
+    public function __construct(string $projectKey, array $connections, $timeout = 10000, $debug = false, LoggerInterface $logger = null, $persist = true)
     {
         if (!$projectKey) {
             throw new BadConfigurationException('A project key is required.');
@@ -47,6 +48,7 @@ class Client
         $this->timeout = $timeout;
         $this->debug = $debug;
         $this->logger = $logger ?: new NullLogger();
+        $this->persist = $persist;
     }
 
     public function request(Command\CommandInterface $command)
@@ -171,12 +173,18 @@ class Client
             $context = stream_context_create();
         }
 
+        $flags = STREAM_CLIENT_CONNECT;
+
+        if ($this->persist) {
+            $flags |= STREAM_CLIENT_PERSISTENT;
+        }
+
         $connection = stream_socket_client(
             $options['remote_socket'],
             $errNo,
             $errMsg,
             1, // This value is not used but it should not be 0
-            STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT,
+            $flags,
             $context
         );
 

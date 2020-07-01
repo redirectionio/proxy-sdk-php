@@ -1,0 +1,16 @@
+steps:
+    - restore_cache:
+          name: Restore code from cache
+          keys:
+            - repo-source-{{ .Branch }}-{{ .Revision }}
+            - repo-source-{{ .Branch }}-
+            - repo-source-
+
+    - checkout
+
+    - save_cache:
+          name: Save code to cache
+          key: repo-source-{{ .Branch }}-{{ .Revision }}
+          paths:
+              - .git
+

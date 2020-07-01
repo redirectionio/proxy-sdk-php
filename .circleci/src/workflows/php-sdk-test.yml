@@ -1,0 +1,5 @@
+jobs:
+    - php-sdk-test:
+          matrix:
+              parameters:
+                  php_version: ["5.6", "7.0", "7.1", "7.2", "7.3", "7.4"]

@@ -1,0 +1,24 @@
+docker:
+    - image: 'cimg/php:<< parameters.php_version >>'
+working_directory: /home/circleci/redirectionio
+parameters:
+    php_version:
+        type: string
+steps:
+    - checkout_with_cache
+    - restore_cache:
+        keys:
+            - php-sdk-cache-<< pipeline.parameters.cache_version >>-{{ checksum "<< pipeline.parameters.php_sdk_directory >>/composer.lock" }}
+            - php-sdk-cache-<< pipeline.parameters.cache_version >>-
+    - run:
+        name: Composer install
+        command: cd << pipeline.parameters.php_sdk_directory >> && composer update
+    - save_cache:
+        key: php-sdk-cache-<< pipeline.parameters.cache_version >>-{{ checksum "<< pipeline.parameters.php_sdk_directory >>/composer.lock" }}
+        paths:
+           - ~/.composer/cache
+    - run:
+        name: Run PHPStan
+        command: cd server/backend && php -d memory_limit=-1 bin/phpstan analyse src/ -c .phpstan.neon -l5
+        when: always
+

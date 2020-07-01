@@ -1,0 +1,12 @@
+parameters:
+    version:
+        type: string
+        default: 2.16.3
+
+steps:
+    - run:
+          name: Install PHP CS Fixer << parameters.version >>
+          command: >
+            sudo wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v<< parameters.version >>/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer;
+
+            sudo chmod +x /usr/local/bin/php-cs-fixer

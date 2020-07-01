@@ -8,7 +8,6 @@ steps:
     - checkout_with_cache
     - restore_cache:
         keys:
-            - php-sdk-cache-<< pipeline.parameters.cache_version >>-{{ checksum "<< pipeline.parameters.php_sdk_directory >>/composer.lock" }}
             - php-sdk-cache-<< pipeline.parameters.cache_version >>-
     - run:
         name: Composer install

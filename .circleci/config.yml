@@ -52,8 +52,6 @@ jobs:
     - checkout_with_cache
     - restore_cache:
         keys:
-        - php-sdk-cache-<< pipeline.parameters.cache_version >>-{{ checksum "<< pipeline.parameters.php_sdk_directory
-          >>/composer.lock" }}
         - php-sdk-cache-<< pipeline.parameters.cache_version >>-
     - run:
         command: cd << pipeline.parameters.php_sdk_directory >> && composer update
@@ -91,8 +89,6 @@ workflows:
           parameters:
             php_version:
             - "5.6"
-            - "7.0"
-            - "7.1"
             - "7.2"
             - "7.3"
             - "7.4"

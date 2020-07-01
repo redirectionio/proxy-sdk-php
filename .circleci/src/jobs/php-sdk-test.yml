@@ -6,6 +6,11 @@ parameters:
         type: string
 steps:
     - checkout_with_cache
+
+    - swissknife/run_if_modified:
+          always-run-on-branch: master
+          pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
+
     - restore_cache:
         keys:
             - php-sdk-cache-<< pipeline.parameters.cache_version >>-

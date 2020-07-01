@@ -1,7 +1,14 @@
-executor: php/default
+docker:
+    - image: 'cimg/php:7.4'
 working_directory: /home/circleci/redirectionio
 steps:
     - checkout_with_cache
+
+    - swissknife/run_if_modified:
+          always-run-on-branch: master
+          pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
+
     - install-php-cs-fixer
+
     - php-cs-fixer:
           directory: << pipeline.parameters.php_sdk_directory >>

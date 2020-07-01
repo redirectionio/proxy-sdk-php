@@ -35,9 +35,13 @@ commands:
         name: Run PHP CS Fixer
 jobs:
   php-sdk-lint:
-    executor: php/default
+    docker:
+    - image: cimg/php:7.4
     steps:
     - checkout_with_cache
+    - swissknife/run_if_modified:
+        always-run-on-branch: master
+        pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
     - install-php-cs-fixer
     - php-cs-fixer:
         directory: << pipeline.parameters.php_sdk_directory >>
@@ -50,6 +54,9 @@ jobs:
         type: string
     steps:
     - checkout_with_cache
+    - swissknife/run_if_modified:
+        always-run-on-branch: master
+        pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
     - restore_cache:
         keys:
         - php-sdk-cache-<< pipeline.parameters.cache_version >>-

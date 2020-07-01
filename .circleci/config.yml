@@ -62,9 +62,8 @@ jobs:
         paths:
         - ~/.composer/cache
     - run:
-        command: cd server/backend && php -d memory_limit=-1 bin/phpstan analyse src/
-          -c .phpstan.neon -l5
-        name: Run PHPStan
+        command: cd << pipeline.parameters.php_sdk_directory >> && composer test
+        name: Run Tests
         when: always
     working_directory: /home/circleci/redirectionio
 orbs:

@@ -17,7 +17,7 @@ steps:
         paths:
            - ~/.composer/cache
     - run:
-        name: Run PHPStan
-        command: cd server/backend && php -d memory_limit=-1 bin/phpstan analyse src/ -c .phpstan.neon -l5
+        name: Run Tests
+        command: cd << pipeline.parameters.php_sdk_directory >> && composer test
         when: always
 

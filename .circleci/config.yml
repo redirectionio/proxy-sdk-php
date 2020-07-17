@@ -1,100 +1,99 @@
 commands:
-  checkout_with_cache:
-    steps:
-    - restore_cache:
-        keys:
-        - repo-source-{{ .Branch }}-{{ .Revision }}
-        - repo-source-{{ .Branch }}-
-        - repo-source-
-        name: Restore code from cache
-    - checkout
-    - save_cache:
-        key: repo-source-{{ .Branch }}-{{ .Revision }}
-        name: Save code to cache
-        paths:
-        - .git
-  install-php-cs-fixer:
-    parameters:
-      version:
-        default: 2.16.3
-        type: string
-    steps:
-    - run:
-        command: |
-          sudo wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v<< parameters.version >>/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer;
-          sudo chmod +x /usr/local/bin/php-cs-fixer
-        name: Install PHP CS Fixer << parameters.version >>
-  php-cs-fixer:
-    parameters:
-      directory:
-        type: string
-    steps:
-    - run:
-        command: |
-          cd << parameters.directory >> && php-cs-fixer fix --dry-run --allow-risky yes --diff --config=.php_cs
-        name: Run PHP CS Fixer
+    checkout_with_cache:
+        steps:
+            - restore_cache:
+                keys:
+                    - repo-source-{{ .Branch }}-{{ .Revision }}
+                    - repo-source-{{ .Branch }}-
+                    - repo-source-
+                name: Restore code from cache
+            - checkout
+            - save_cache:
+                key: repo-source-{{ .Branch }}-{{ .Revision }}
+                name: Save code to cache
+                paths:
+                    - .git
+    install-php-cs-fixer:
+        parameters:
+            version:
+                default: 2.16.3
+                type: string
+        steps:
+            - run:
+                command: |
+                    sudo wget https://github.com/FriendsOfPHP/PHP-CS-Fixer/releases/download/v<< parameters.version >>/php-cs-fixer.phar -O /usr/local/bin/php-cs-fixer;
+                    sudo chmod +x /usr/local/bin/php-cs-fixer
+                name: Install PHP CS Fixer << parameters.version >>
+    php-cs-fixer:
+        parameters:
+            directory:
+                type: string
+        steps:
+            - run:
+                command: |
+                    cd << parameters.directory >> && php-cs-fixer fix --dry-run --allow-risky yes --diff --config=.php_cs
+                name: Run PHP CS Fixer
 jobs:
-  php-sdk-lint:
-    docker:
-    - image: cimg/php:7.4
-    steps:
-    - checkout_with_cache
-    - swissknife/run_if_modified:
-        always-run-on-branch: master
-        pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
-    - install-php-cs-fixer
-    - php-cs-fixer:
-        directory: << pipeline.parameters.php_sdk_directory >>
-    working_directory: /home/circleci/redirectionio
-  php-sdk-test:
-    docker:
-    - image: cimg/php:<< parameters.php_version >>
-    parameters:
-      php_version:
-        type: string
-    steps:
-    - checkout_with_cache
-    - swissknife/run_if_modified:
-        always-run-on-branch: master
-        pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
-    - restore_cache:
-        keys:
-        - php-sdk-cache-<< pipeline.parameters.cache_version >>-
-    - run:
-        command: cd << pipeline.parameters.php_sdk_directory >> && composer update
-        name: Composer install
-    - save_cache:
-        key: php-sdk-cache-<< pipeline.parameters.cache_version >>-{{ checksum "<<
-          pipeline.parameters.php_sdk_directory >>/composer.lock" }}
-        paths:
-        - ~/.composer/cache
-    - run:
-        command: cd << pipeline.parameters.php_sdk_directory >> && composer test
-        name: Run Tests
-        when: always
-    working_directory: /home/circleci/redirectionio
+    php-sdk-lint:
+        docker:
+            - image: cimg/php:7.4
+        steps:
+            - checkout_with_cache
+            - swissknife/run_if_modified:
+                always-run-on-branch: master
+                pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
+            - install-php-cs-fixer
+            - php-cs-fixer:
+                directory: << pipeline.parameters.php_sdk_directory >>
+        working_directory: /home/circleci/redirectionio
+    php-sdk-test:
+        docker:
+            - image: cimg/php:<< parameters.php_version >>
+        parameters:
+            php_version:
+                type: string
+        steps:
+            - checkout_with_cache
+            - swissknife/run_if_modified:
+                always-run-on-branch: master
+                pattern: ^<< pipeline.parameters.php_sdk_directory >>.*
+            - restore_cache:
+                keys:
+                    - php-sdk-cache-<< pipeline.parameters.cache_version >>-
+            - run:
+                command: cd << pipeline.parameters.php_sdk_directory >> && composer update
+                name: Composer install
+            - save_cache:
+                key: php-sdk-cache-<< pipeline.parameters.cache_version >>-{{ checksum "<< pipeline.parameters.php_sdk_directory >>/composer.lock" }}
+                paths:
+                    - ~/.composer/cache
+            - run:
+                command: cd << pipeline.parameters.php_sdk_directory >> && composer test
+                name: Run Tests
+                when: always
+        working_directory: /home/circleci/redirectionio
 orbs:
-  php: circleci/php@1.0.0
-  swissknife: roopakv/swissknife@0.44.0
+    php: circleci/php@1.0.0
+    swissknife: roopakv/swissknife@0.44.0
 parameters:
-  cache_version:
-    default: "1"
-    type: string
-  php_sdk_directory:
-    default: .
-    type: string
+    cache_version:
+        default: "1"
+        type: string
+    php_sdk_directory:
+        default: .
+        type: string
 version: 2.1
 workflows:
-  php-sdk-lint:
-    jobs:
-    - php-sdk-lint
-  php-sdk-test:
-    jobs:
-    - php-sdk-test:
-        matrix:
-          parameters:
-            php_version:
-            - "7.2"
-            - "7.3"
-            - "7.4"
+    php-sdk-lint:
+        jobs:
+            - php-sdk-lint
+    php-sdk-test:
+        jobs:
+            - php-sdk-test:
+                matrix:
+                    parameters:
+                        php_version:
+                            - "7.2"
+                            - "7.3"
+                            - "7.4"
 

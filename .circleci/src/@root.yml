@@ -11,3 +11,7 @@ parameters:
     php_sdk_directory:
         type: string
         default: "."
+
+    run_php_sdk:
+        type: boolean
+        default: true

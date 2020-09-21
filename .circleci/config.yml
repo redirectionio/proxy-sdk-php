@@ -82,11 +82,15 @@ parameters:
     php_sdk_directory:
         default: .
         type: string
+    run_php_sdk:
+        default: true
+        type: boolean
 version: 2.1
 workflows:
     php-sdk-lint:
         jobs:
             - php-sdk-lint
+        when: << pipeline.parameters.run_php_sdk >>
     php-sdk-test:
         jobs:
             - php-sdk-test:
@@ -96,4 +100,5 @@ workflows:
                             - "7.2"
                             - "7.3"
                             - "7.4"
+        when: << pipeline.parameters.run_php_sdk >>
 

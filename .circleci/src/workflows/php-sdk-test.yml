@@ -1,3 +1,4 @@
+when: << pipeline.parameters.run_php_sdk >>
 jobs:
     - php-sdk-test:
           matrix:

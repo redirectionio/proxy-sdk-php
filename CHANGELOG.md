@@ -1,5 +1,9 @@
 # ChangeLog
 
+## 0.4.0
+
+- Allow to deactivate persist flag on client connections
+
 ## 0.3.1
 
 - Always reset the error handler

@@ -32,7 +32,7 @@ class MatchWithResponseCommand extends Command
             'referer' => $this->request->getReferer(),
             'scheme' => $this->request->getScheme(),
             'use_json' => true,
-        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        ], \JSON_UNESCAPED_UNICODE | \JSON_UNESCAPED_SLASHES);
     }
 
     public function hasResponse()

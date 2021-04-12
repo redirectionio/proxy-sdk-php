@@ -173,10 +173,10 @@ class Client
             $context = stream_context_create();
         }
 
-        $flags = STREAM_CLIENT_CONNECT;
+        $flags = \STREAM_CLIENT_CONNECT;
 
         if ($this->persist) {
-            $flags |= STREAM_CLIENT_PERSISTENT;
+            $flags |= \STREAM_CLIENT_PERSISTENT;
         }
 
         $connection = stream_socket_client(

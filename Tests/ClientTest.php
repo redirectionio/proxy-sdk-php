@@ -28,7 +28,7 @@ class ClientTest extends TestCase
         static::startAgent();
     }
 
-    public function setUp()
+    protected function setUp()
     {
         $logger = new Logger('SDK Tests');
         $logger->pushHandler(new ErrorLogHandler());
